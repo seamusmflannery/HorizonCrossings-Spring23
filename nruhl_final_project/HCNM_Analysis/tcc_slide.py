@@ -6,7 +6,7 @@ from pathlib import Path
 from scipy.interpolate import interp1d
 import numpy as np
 import sys
-sys.path.append("/Users/nathanielruhl/PycharmProjects/HorizonCrossings-local/nruhl_final_project")  # add working directory, str(Path(__file__).parents[1])
+sys.path.append("/Users/nathanielruhl/Desktop/HorizonCrossings-Summer22/nruhl_final_project/")  # add working directory, str(Path(__file__).parents[1])
 
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing

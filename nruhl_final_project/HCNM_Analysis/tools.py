@@ -87,5 +87,3 @@ def point_on_earth(theta_list, phi_list):
         y = constants.b * np.sin(theta_column_vec) * np.sin(phi_column_vec)
         z = constants.c * np.cos(phi_column_vec)
         return np.hstack((x, y, z))
-
-print(period_to_a(5576.7))

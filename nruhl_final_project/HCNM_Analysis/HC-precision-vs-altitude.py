@@ -4,7 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.append("/Users/nathanielruhl/PycharmProjects/HorizonCrossings-local/nruhl_final_project")
+sys.path.append("/Users/nathanielruhl/Desktop/HorizonCrossings-Summer22/nruhl_final_project/")
 
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing

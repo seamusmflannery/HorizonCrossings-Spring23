@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 import sys
-sys.path.append("/Users/nathanielruhl/PycharmProjects/HorizonCrossings-local/nruhl_final_project")  # add working directory, str(Path(__file__).parents[1])
+sys.path.append("/Users/nathanielruhl/Desktop/HorizonCrossings-Summer22/nruhl_final_project/")  # add working directory, str(Path(__file__).parents[1])
 
 from AnalyzeCrossing import AnalyzeCrossing
 
