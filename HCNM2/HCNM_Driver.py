@@ -25,8 +25,7 @@ r_array, t_array = OrbitModel.define_orbit_model(obs_dict, "mkf", time_step=0.01
 #2)
 r0_obj = LocateR0hc(obs_dict, r_array, t_array)
 t0_model_index, lat_gp, lon_gp = r0_obj.return_r0_hc_params()
-print(r_array[t0_model_index])
-# Remember that lat_gp, lon_gp can be defined from g_unit
+print(f'r0_hc = {r_array[t0_model_index]}')
 
 orbit_derived_inputs = (r_array, t_array, t0_model_index)
 

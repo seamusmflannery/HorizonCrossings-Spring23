@@ -4,7 +4,8 @@
 import math as m
 import numpy as np
 import datetime
-# import pymap3d as pm
+import pymap3d as pm
+import numbers
 
 import constants as constants
 
@@ -109,7 +110,7 @@ def point_on_earth(theta_list, phi_list):
 def eci2geodetic_pymap(los_point_array, time_seconds):
     if los_point_array.ndim == 1:
         los_point_m = los_point_array * 1000   # convert to [m]
-        lat, lon, alt = pm.eci2geodetic(los_point_m[0], los_point_m[1], los_point_m[2], tools.convert_time(time_seconds))
+        lat, lon, alt = pm.eci2geodetic(los_point_m[0], los_point_m[1], los_point_m[2], convert_time_NICER(time_seconds))
         # return altitude in km, lat and lon in degrees
         return lat, lon, alt / 1000
     else:

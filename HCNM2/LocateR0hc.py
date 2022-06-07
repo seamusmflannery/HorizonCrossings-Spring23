@@ -32,8 +32,7 @@ class LocateR0hc:
     # The method below is called in HCNM_Driver
     def return_r0_hc_params(self):
         # Calculate latitude and longitude of the graze point
-        lat_gp, lon_gp, alt_gp_meters = 15, 15, 0.2 # tools.eci2geodetic_pymap(self.graze_point, self.t0_model)
-        # pymap3d is not currently working
+        lat_gp, lon_gp, alt_gp_meters = tools.eci2geodetic_pymap(self.graze_point, self.t0_model)
         return self.t0_model_index, lat_gp, lon_gp
 
     def get_initial_guess(self):

@@ -79,6 +79,16 @@ class LocateR0hc2(ObservationOrbit):
             earth_points = tools.point_on_earth(np.zeros_like(phi_list), phi_list)
             earth_radius_list = np.sqrt(earth_points[:, 0] ** 2 + earth_points[:, 1] ** 2 + earth_points[:, 2] ** 2)
 
+            # Identify self.hc_type
+            # This is a good method, but the problem is that it needs to be defined earlier
+            # in a previous function
+            if time_index == 0:
+                middle_index_los = np.argmin(los_mag_list)
+                if los_mag_list[middle_index_los]<earth_radius_list[middle_index_los]:
+                    print("rising")
+                elif los_mag_list[middle_index_los]>earth_radius_list[middle_index_los]:
+                    print("setting")
+
             # Check if we reached the tangent grazing point, different for two hc types
             # This will be achieved for multiple lines of sight
             if self.hc_type == "rising":
@@ -122,6 +132,7 @@ v4641 = {"i": np.deg2rad(51.538), # rad
 
 if __name__ == '__main__':
     obs = LocateR0hc2(v4641, "rising")
+    print(obs.R_orbit)
     print(obs.t0_model)
     print(obs.r0_2d)
     print(obs.r0_hc)
