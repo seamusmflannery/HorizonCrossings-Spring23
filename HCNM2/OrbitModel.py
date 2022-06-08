@@ -1,10 +1,10 @@
 # Author: Nathaniel Ruhl
+# This class contains methods to define an orbit model
 
 import numpy as np
 from astropy.table import Table
 from scipy.interpolate import interp1d
 
-# This should be derined in crossing_time_range in the future
 
 class OrbitModel:
 

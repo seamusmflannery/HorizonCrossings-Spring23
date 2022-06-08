@@ -28,12 +28,7 @@ class LocateR0hc:
         # Other useful variables
         self.g_unit = self.graze_point / np.linalg.norm(self.graze_point)
         self.t0_model = t_array[self.t0_model_index]
-
-    # The method below is called in HCNM_Driver
-    def return_r0_hc_params(self):
-        # Calculate latitude and longitude of the graze point
-        lat_gp, lon_gp, alt_gp_meters = tools.eci2geodetic_pymap(self.graze_point, self.t0_model)
-        return self.t0_model_index, lat_gp, lon_gp
+        self.lat_gp, self.lon_gp, _ = tools.eci2geodetic_pymap(self.graze_point, self.t0_model)
 
     def get_initial_guess(self):
         starECI_proj = tools.proj_on_orbit(self.starECI, self.h_unit)
