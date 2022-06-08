@@ -17,15 +17,16 @@ from ObservationDictionaries.v4641 import v4641
 
 # Process of HCNM to be used in every script
 
+
 def main():
     obs_dict = v4641
-    e_band = [1.0, 2.0] # keV
-    bin_size = 1.0 # sec
+    e_band = [2.0, 3.0] # keV
+    bin_size = 1.0  # sec
 
     #1) Bin the data. Can identify hc_type in this step
     evt_obj = ReadEVT(obs_dict)
     rate_data, time_data, unattenuated_rate = evt_obj.return_crossing_data(e_band, bin_size)
-
+    print(unattenuated_rate)
     # 2) Define orbit model
     r_array, t_array = OrbitModel.define_orbit_model(obs_dict, "mkf", time_step=0.01)
 
@@ -46,15 +47,18 @@ def main():
     eband_derived_inputs = (e_band, bin_size, normalized_amplitudes, bin_centers)
 
     # 5) RXTE Analysis starts here. Not currently working
-    # model_obj = TransmitModel(obs_dict, orbit_derived_inputs, eband_derived_inputs)
-    # transmit_model, time_crossing_model = model_obj.calculate_transmit_model()
-    time_crossing_model = np.arange(0, 300, bin_size)
-    transmit_model = np.exp(-np.exp(-time_crossing_model+55))
+    model_obj = TransmitModel(obs_dict, orbit_derived_inputs, eband_derived_inputs)
+    transmit_model, time_crossing_model = model_obj.calculate_transmit_model()
+
+    # GENERATE DATA IF NEEDED
+    # time_crossing_model = np.arange(0, 300, bin_size)
+    # transmit_model = np.exp(-np.exp(-time_crossing_model+20))
 
     # 6)
     model_and_data_tuple = (time_crossing_model, transmit_model, time_data, rate_data, unattenuated_rate)
 
     comp_obj = CurveComparison(obs_dict, model_and_data_tuple)
+    print(comp_obj.t0_1)
     t0_e, dt_e = comp_obj.t0_e, comp_obj.dt_e
     del comp_obj
 

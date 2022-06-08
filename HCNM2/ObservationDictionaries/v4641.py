@@ -15,8 +15,8 @@ v4641 = {   # BASIC OBSERVATION INFO
             # USER-ENTERED INFORMATION
             "crossing_time_range": np.array([300 + 1.92224e8, 760 + 1.92224e8]),  # seconds in MET
             "spectrum_time_range": np.array([550 + 1.92224e8, 690 + 1.92224e8]),  # only for NICER
-            "f107": 100,
-            "ap": 7.0,
+            "f107": 69.7,
+            "ap": 12.0,
 
             # 2 FIELDS FOR USER TO DETERMINE
             # Used in LocateR0hc.py

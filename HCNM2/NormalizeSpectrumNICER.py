@@ -14,9 +14,10 @@ from scipy.interpolate import interp1d
 # self.normalized_counts
 # self.bin_centers  [keV]
 
+
 class NormalizeSpectrumNICER:
     # class variables
-    FREQ_MAX = 25  # max frequency index in the fourier transform of the smoothed spectrum
+    FREQ_MAX = 20  # max frequency index in the fourier transform of the smoothed spectrum
     DX_FULL_EBAND_INTEGRATION = 0.05  # keV, steps for calculating area under the user-inputted energy range
     DX_PROBABILITY_INTEGRATION = 0.0005  # keV, steps (within a step of constant cross section) to calc probability
     hist_bins = 100
