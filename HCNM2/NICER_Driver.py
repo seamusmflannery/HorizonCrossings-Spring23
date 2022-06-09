@@ -2,8 +2,6 @@
 
 # Driver for HCNM process
 
-import numpy as np
-
 # import local modules for HCNM Analysis
 from OrbitModel import OrbitModel
 from LocateR0hc import LocateR0hc
@@ -14,7 +12,6 @@ from CurveComparison import CurveComparison
 
 # import observation dictionaries
 from ObservationDictionaries.v4641NICER import v4641NICER
-from ObservationDictionaries.crabNICER import crabNICER
 
 # Process of HCNM to be used in every script
 

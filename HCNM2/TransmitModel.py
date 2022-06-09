@@ -9,6 +9,7 @@ from xsects import BCM  # X-ray cross-sections
 import tools as tools
 import MSIS as MSIS
 
+
 # MAIN FUNCTION: TransmitModel.calculate_transmit_model()
 
 # INPUTS (9 total):
@@ -82,12 +83,12 @@ class TransmitModel:
             tangent_point_index = np.argmin(altitude_list_pymap)
             # print(altitude_list_pymap[tangent_point_index]) TANGENT ALTITUDE
             los_densities = MSIS.get_pymsis_density(datetime=mid_datetime_crossing,
-                                                   lon=self.lon_gp,
-                                                   lat=self.lat_gp,
-                                                   alts=altitude_list_pymap,
-                                                   f107=self.obs_dict["f107"],
-                                                   ap=self.obs_dict["ap"],
-                                                   version=00)[1]
+                                                    lon=self.lon_gp,
+                                                    lat=self.lat_gp,
+                                                    alts=altitude_list_pymap,
+                                                    f107=self.obs_dict["f107"],
+                                                    ap=self.obs_dict["ap"],
+                                                    version=00)[1]
             density_tp_list[t_index] = los_densities[tangent_point_index]
 
             los_densities[tangent_point_index:] = 0.0  # only consider densities on half the LOS

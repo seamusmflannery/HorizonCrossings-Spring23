@@ -7,6 +7,7 @@ import numpy as np
 import tools as tools
 import constants as constants
 
+
 # This class locates r0 for both the rising and setting crossing
 class LocateR0hc:
     n_step_size = 0.1   # km step size along the line-of-sight (LOS)
