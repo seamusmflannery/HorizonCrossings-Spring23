@@ -79,10 +79,8 @@ class LocateR0hc:
             los_points = self.los_line(time_index, n_list)  # all points along the LOS
 
             # Lists to check radial altitude at different points along the LOS
-            # Variable below is distance from point to origin, not los length
             los_mag_list = np.sqrt(los_points[:, 0] ** 2 + los_points[:, 1] ** 2 + los_points[:, 2] ** 2)
-            phi_list = np.arccos(los_points[:, 2] / los_mag_list)
-            # polar angle at every point along the line of sight
+            phi_list = np.arccos(los_points[:, 2] / los_mag_list)  # polar angle at every point along the line of sight
             # Find the radius of earth with the same polar angle as points along the line of sight
             earth_points = tools.point_on_earth(np.zeros_like(phi_list), phi_list)
             earth_radius_list = np.sqrt(earth_points[:, 0] ** 2 + earth_points[:, 1] ** 2 + earth_points[:, 2] ** 2)
@@ -91,9 +89,9 @@ class LocateR0hc:
             # Identify hc_type (note that this needs to be defined earlier)
             if time_index == 0:
                 middle_index_los = np.argmin(los_mag_list)
-                if los_mag_list[middle_index_los]<earth_radius_list[middle_index_los]:
+                if los_mag_list[middle_index_los] < earth_radius_list[middle_index_los]:
                     hc_type = "rising"
-                elif los_mag_list[middle_index_los]>earth_radius_list[middle_index_los]:
+                elif los_mag_list[middle_index_los] > earth_radius_list[middle_index_los]:
                     hc_type = "setting"
 
             # Check if we reached the tangent grazing point
@@ -124,3 +122,7 @@ class LocateR0hc:
 
         print('Tangent point not located in specified time range')
         return 0, 0, 0, 0
+
+    # Used in HCNM Driver
+    def return_orbit_data(self):
+        return self.t0_model_index, self.lat_gp, self.lon_gp

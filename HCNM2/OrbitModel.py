@@ -36,9 +36,9 @@ class OrbitModel:
     # time_array is the list of times that corresponds to r_array
     @staticmethod
     def interpolate_mkf_position(r_mkf, t_mkf, t_array):
-        x_interpolator = interp1d(t_mkf, r_mkf[:, 0])
-        y_interpolator = interp1d(t_mkf, r_mkf[:, 1])
-        z_interpolator = interp1d(t_mkf, r_mkf[:, 2])
+        x_interpolator = interp1d(t_mkf, r_mkf[:, 0], kind="cubic")
+        y_interpolator = interp1d(t_mkf, r_mkf[:, 1], kind="cubic")
+        z_interpolator = interp1d(t_mkf, r_mkf[:, 2], kind="cubic")
 
         rx = x_interpolator(t_array).reshape((len(t_array), 1))
         ry = y_interpolator(t_array).reshape((len(t_array), 1))

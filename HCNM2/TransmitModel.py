@@ -25,7 +25,7 @@ class TransmitModel:
     mix_O = 0.21
     mix_Ar = 0.01
 
-    dE = 0.1  # keV, default step size for the effective transmittance model
+    dE = 0.25  # keV, default step size for the effective transmittance model
     dx = 0.0005  # keV, energy step size (within a step of constant cross section) to calc probability under the normalized spectrum
 
     ds_km = 0.5   # km, step size along the telescopic LOS
@@ -87,7 +87,7 @@ class TransmitModel:
                                                    alts=altitude_list_pymap,
                                                    f107=self.obs_dict["f107"],
                                                    ap=self.obs_dict["ap"],
-                                                   version=2)[1]
+                                                   version=00)[1]
             density_tp_list[t_index] = los_densities[tangent_point_index]
 
             los_densities[tangent_point_index:] = 0.0  # only consider densities on half the LOS

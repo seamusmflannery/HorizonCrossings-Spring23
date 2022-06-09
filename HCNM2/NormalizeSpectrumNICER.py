@@ -43,6 +43,10 @@ class NormalizeSpectrumNICER:
         self.amplitude_clean = self.smooth_spectrum()  # smooths self.amplitudes
         self.normalized_amplitudes = self.amplitude_clean / self.calc_total_area_eband()
 
+    # Method called from the Driver: returns 2 fields
+    def return_spectrum_data(self):
+        return self.normalized_amplitudes, self.bin_centers
+
     # Used when binning the data by energy band within obs_dict['spectrum_time_range']
     def reduce_spectrum_time_range(self):
         time_range = self.obs_dict["spectrum_time_range"]
@@ -83,6 +87,7 @@ class NormalizeSpectrumNICER:
     def calc_total_area_eband(self):
         area = 0  # add up the total area
         dx = NormalizeSpectrumNICER.DX_FULL_EBAND_INTEGRATION
+
         for left_bound in np.arange(self.en_lower_kev, self.en_upper_kev, dx):
             # trapezoidal sum
             area += (self.interpolate_spectrum(left_bound, self.amplitude_clean) + self.interpolate_spectrum(left_bound + dx, self.amplitude_clean))*dx/2
@@ -123,13 +128,15 @@ class NormalizeSpectrumNICER:
     def get_n_intervals_effective_transmit(cls):
         return cls.DX_PROBABILITY_INTEGRATION
 
+
 # Example code to test this calss
 if __name__ == '__main__':
     from ReadEVT import ReadEVT
-    from ObservationDictionaries.v4641 import v4641
+    from ObservationDictionaries.v4641NICER import v4641NICER
+    from ObservationDictionaries.crabNICER import crabNICER
 
-    obs_dict = v4641
-    e_band = [1.0, 2.0] # keV
+    obs_dict = crabNICER
+    e_band = [1.0, 2.0]  # keV
 
     evt_obj = ReadEVT(obs_dict)
     spec_obj = NormalizeSpectrumNICER(evt_obj, e_band)

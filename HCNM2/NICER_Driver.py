@@ -4,7 +4,7 @@
 
 import numpy as np
 
-# import local modules
+# import local modules for HCNM Analysis
 from OrbitModel import OrbitModel
 from LocateR0hc import LocateR0hc
 from ReadEVT import ReadEVT
@@ -13,34 +13,34 @@ from TransmitModel import TransmitModel
 from CurveComparison import CurveComparison
 
 # import observation dictionaries
-from ObservationDictionaries.v4641 import v4641
+from ObservationDictionaries.v4641NICER import v4641NICER
+from ObservationDictionaries.crabNICER import crabNICER
 
 # Process of HCNM to be used in every script
 
 
 def main():
-    obs_dict = v4641
-    e_band = [2.0, 3.0] # keV
-    bin_size = 1.0  # sec
+    obs_dict = v4641NICER
+    e_band = [1.0, 2.0]  # keV
+    bin_size = 1.0   # sec
 
-    #1) Bin the data. Can identify hc_type in this step
-    evt_obj = ReadEVT(obs_dict)
-    rate_data, time_data, unattenuated_rate = evt_obj.return_crossing_data(e_band, bin_size)
-    print(unattenuated_rate)
-    # 2) Define orbit model
+    # 1) Define orbit model
     r_array, t_array = OrbitModel.define_orbit_model(obs_dict, "mkf", time_step=0.01)
 
-    # 3) LocateRohc (must know hc_type here (from obs_dict or step 1))
+    # 2) LocateR0hc (must know hc_type here (from obs_dict or step 1))
     r0_obj = LocateR0hc(obs_dict, r_array, t_array)
-    t0_model_index, lat_gp, lon_gp = r0_obj.t0_model_index, r0_obj.lat_gp, r0_obj.lon_gp
+    t0_model_index, lat_gp, lon_gp = r0_obj.return_orbit_data()
     del r0_obj
-    print(f'r0_hc = {r_array[t0_model_index]}')
 
     orbit_derived_inputs = (r_array, t_array, t0_model_index, lat_gp, lon_gp)
 
-    # 4)
+    # 3) Bin the data. If repeating for a different energy band, can start analysis at step 3.
+    # Can also identify hc_type in this step.
+    evt_obj = ReadEVT(obs_dict)
+    rate_data, time_data, unattenuated_rate = evt_obj.return_crossing_data(e_band, bin_size)
+
     spec_obj = NormalizeSpectrumNICER(evt_obj, e_band)
-    normalized_amplitudes, bin_centers = spec_obj.normalized_amplitudes, spec_obj.bin_centers
+    normalized_amplitudes, bin_centers = spec_obj.return_spectrum_data()
     del evt_obj
     del spec_obj
 
@@ -58,7 +58,6 @@ def main():
     model_and_data_tuple = (time_crossing_model, transmit_model, time_data, rate_data, unattenuated_rate)
 
     comp_obj = CurveComparison(obs_dict, model_and_data_tuple)
-    print(comp_obj.t0_1)
     t0_e, dt_e = comp_obj.t0_e, comp_obj.dt_e
     del comp_obj
 
@@ -66,7 +65,7 @@ def main():
     print(f"Crossing: t0_e = {t0_e} +/- {dt_e} sec")
     print(f"Input Orbit Model: t0 = {t_array[t0_model_index]} sec")
 
-    #7 weighted_mean_HC.py
+    #7) weighted_mean_HC.py
 
 
 if __name__ == '__main__':
