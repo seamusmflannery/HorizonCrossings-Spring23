@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # import local modules for HCNM Analysis
-from OrbitModel import OrbitModel
-from LocateR0hc import LocateR0hc
-from ReadEVT import ReadEVT
-from NormalizeSpectrumNICER import NormalizeSpectrumNICER
-from TransmitModel import TransmitModel
+from Modules.OrbitModel import OrbitModel
+from Modules.LocateR0hc import LocateR0hc
+from Modules.ReadEVT import ReadEVT
+from Modules.NormalizeSpectrumNICER import NormalizeSpectrumNICER
+from Modules.TransmitModel import TransmitModel
 
 # import observation dictionaries
 from ObservationDictionaries.v4641NICER import v4641NICER

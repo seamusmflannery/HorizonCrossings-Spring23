@@ -7,7 +7,7 @@ import datetime
 import pymap3d as pm
 import numbers
 
-import constants as constants
+import Modules.constants as constants
 
 # This function converts seconds from Jan 1 2014 into a datetime in UTC
 def convert_time_NICER(time):

@@ -3,7 +3,6 @@
 from pathlib import Path
 import os
 
-os.chdir(str(Path(__file__).parents[1]))
 from ObservationDictionaries.v4641NICER import v4641NICER
 from Modules.OrbitModel import OrbitModel
 

@@ -5,9 +5,9 @@
 import numpy as np
 from scipy.interpolate import interp1d
 
-from xsects import BCM  # X-ray cross-sections
-import tools as tools
-import MSIS as MSIS
+from Modules.xsects import BCM  # X-ray cross-sections
+import Modules.tools as tools
+import Modules.MSIS as MSIS
 
 
 # MAIN FUNCTION: TransmitModel.calculate_transmit_model()

@@ -1,7 +1,9 @@
 import numpy as np
+from pathlib import Path
+cwd = str(Path(__file__).parents[1])  # HCNM2/ is cwd
 
 # import local modules
-import tools as tools
+from Modules import tools as tools
 
 v4641NICER = {   # BASIC OBSERVATION INFO
             "detector": "NICER",
@@ -25,8 +27,8 @@ v4641NICER = {   # BASIC OBSERVATION INFO
 
             # PATHS TO DATA FILES (from cwd, HCNM2/)
 
-            "evt_path": "Data/NICER/2-3-20-v4641/NICER_events.evt",  # NICER events file
-            "mkf_path": "Data/NICER/2-3-20-v4641/ISS_orbit.mkf",  # NICER orbital solution
+            "evt_path": cwd + "/Data/NICER/2-3-20-v4641/NICER_events.evt",  # NICER events file
+            "mkf_path": cwd + "/Data/NICER/2-3-20-v4641/ISS_orbit.mkf",  # NICER orbital solution
 
             "lc_path": None,  # RXTE binned data
             "orb_path": None,  # RXTE orbital solution

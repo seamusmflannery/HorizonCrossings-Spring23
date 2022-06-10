@@ -1,14 +1,14 @@
 # Author: Nathaniel Ruhl
 
-# Driver for HCNM process
+# Driver for HCNM process for a NICER observation
 
 # import local modules for HCNM Analysis
-from OrbitModel import OrbitModel
-from LocateR0hc import LocateR0hc
-from ReadEVT import ReadEVT
-from NormalizeSpectrumNICER import NormalizeSpectrumNICER
-from TransmitModel import TransmitModel
-from CurveComparison import CurveComparison
+from Modules.OrbitModel import OrbitModel
+from Modules.LocateR0hc import LocateR0hc
+from Modules.ReadEVT import ReadEVT
+from Modules.NormalizeSpectrumNICER import NormalizeSpectrumNICER
+from Modules.TransmitModel import TransmitModel
+from Modules.CurveComparison import CurveComparison
 
 # import observation dictionaries
 from ObservationDictionaries.v4641NICER import v4641NICER
