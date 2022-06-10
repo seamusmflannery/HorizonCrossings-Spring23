@@ -9,13 +9,13 @@ sys.path.append("/Users/nathanielruhl/Desktop/HorizonCrossings-Summer22/nruhl_fi
 
 from AnalyzeCrossing import AnalyzeCrossing
 
-altitude_list = np.arange(400, 1500, 100)
+altitude_list = np.arange(400, 1300, 100)
 dt_list = []   # list containing duration of HC's
 m50_list = []   # list containing the slope at the 50% point
 
 # Calculate and plot transmittance curves at each orbital altitude
 for altitude in altitude_list:
-    sat = AnalyzeCrossing(cb="Earth", H=altitude, E_kev=2.0)
+    sat = AnalyzeCrossing(cb="Earth", H=altitude, E_kev=1.5)
     time_array = np.arange(0, sat.time_final, 1)
     transmit_array = sat.calc_transmit_curve(time_array)
 
@@ -38,14 +38,14 @@ for altitude in altitude_list:
         label=fr"H = {altitude} km, $\Delta t_{{c}}$ = {dt:.1f} sec")
 
 plt.figure(1)
-plt.title("2.0 keV Earth Horizon Crossing Curves at Different Orbital Altitudes")
+plt.title("1.5 keV Earth Horizon Crossing Curves at Different Orbital Altitudes")
 plt.ylabel("Transmittance")
 plt.xlabel("Time")
 plt.legend()
 
 plt.figure(2)
 plt.plot(altitude_list, dt_list)
-plt.title("Duration of 2.0 keV Earth Horizon Crossing Curves at Different Orbital Altitudes")
+plt.title("Duration of 1.5 keV Earth Horizon Crossing Curves at Different Orbital Altitudes")
 plt.xlabel("Orbital Altitude (km)")
 plt.ylabel("Time from 1% to 99% Transmittance (sec)")
 plt.legend()

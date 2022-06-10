@@ -11,12 +11,12 @@ from AnalyzeCrossing import AnalyzeCrossing
 from tcc_slide import CurveComparison, generate_crossings
 
 # Global variables
-N = 500 # average number of unattenuated counts in data
+N = 244 # average number of unattenuated counts in data
 bin_size = 1
 comp_range = [0.01, 0.99] # range of transmittance in which to compare the curves
 cb_str = "Earth"
-E_kev = 2 # keV
-hc_type = "setting"
+E_kev = 1.5 # keV
+hc_type = "rising"
 
 def main():
     altitude_list = np.arange(300, 2100, 100)
@@ -24,12 +24,12 @@ def main():
 
     for i, alt in enumerate(altitude_list):
         sat = AnalyzeCrossing(cb=cb_str, H=alt, E_kev=E_kev)
-        comp_obj = CurveComparison(sat, hc_type)
+        comp_obj = CurveComparison(sat, hc_type, N)
         dt_list[i] = comp_obj.dt_e
 
     plt.figure()
     plt.title(r"$\delta t_e$ uncertainty as a function of orbital altitude")
-    plt.plot(altitude_list, dt_list, label=f"{E_kev} keV {cb_str} {hc_type} crossing, N = {N}")
+    plt.plot(altitude_list, dt_list, label=fr"{E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
     plt.ylabel(r"$\delta t_e$ (sec)")
     plt.xlabel("Orbital altitude (km)")
     plt.legend()

@@ -11,15 +11,21 @@ sys.path.append("/Users/nathanielruhl/Desktop/HorizonCrossings-Summer22/nruhl_fi
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing
 
-N = 500 # average number of unattenuated counts in data
+# Global parameters to be used in the analysis
+cb_str = "Earth"
+hc_type = "rising"
+N0 = 244 # average number of unattenuated counts in data
+E_kev = 1.5
+H = 420  # km, orbital altitude
 bin_size = 1
 comp_range = [0.01, 0.99] # range of transmittance in which to compare the curves
 
+# Parameters involved in generating hc data
+std = 0.05  # standard deviation of normally-distributed noise
+np.random.seed(3)
+
 # This function generates the horizon crossing times and transmittance arrays for both model and data
 def generate_crossings(sat, hc_type):
-    std = 0.03  # standard deviation of normally-distributed noise
-    np.random.seed(3)
-
     # Define time_model differently if setting or rising HC
     time_model = np.arange(0, sat.time_final, bin_size)
     if hc_type == "setting":
@@ -44,9 +50,10 @@ def generate_crossings(sat, hc_type):
 
 # This calss executes the curve CurveComparison
 class CurveComparison:
-    def __init__(self, sat, hc_type):
+    def __init__(self, sat, hc_type, N0):
         self.sat = sat
         self.hc_type = hc_type  # want this to be autonomous
+        self.N0 = N0
         self.time_model, self.transmit_model, self.time_data, self.transmit_data = generate_crossings(self.sat, self.hc_type)
         # First step to identify t0
         self.t0_1 = self.locate_t0_step1()
@@ -84,10 +91,10 @@ class CurveComparison:
         # Define the data points in the full crossing time range
         if self.hc_type == "setting":
             time_crossing_data = self.time_data[t0_1_index-len(self.time_model):t0_1_index]
-            rate_data = N*self.transmit_data[t0_1_index-len(self.time_model):t0_1_index]
+            rate_data = self.N0*self.transmit_data[t0_1_index-len(self.time_model):t0_1_index]
         elif self.hc_type == "rising":
             time_crossing_data = self.time_data[t0_1_index:t0_1_index+len(self.time_model)]
-            rate_data = N*self.transmit_data[t0_1_index:t0_1_index+len(self.time_model)]
+            rate_data = self.N0*self.transmit_data[t0_1_index:t0_1_index+len(self.time_model)]
 
         # bin size must be greater than 2
         t_start_list = np.arange(int(self.time_data[t0_1_index])-2,
@@ -105,7 +112,7 @@ class CurveComparison:
                 time_crossing_model = np.flip(np.arange(t0_guess, t0_guess - self.sat.time_final, -bin_size))
 
             # Note that however this interpolation is done, the model and data times need to be in the same order
-            model_rate_vs_time = interp1d(time_crossing_model, N*self.transmit_model, kind='cubic', fill_value='extrapolate')
+            model_rate_vs_time = interp1d(time_crossing_model, self.N0*self.transmit_model, kind='cubic', fill_value='extrapolate')
             model_rate_interp = model_rate_vs_time(time_crossing_data)
             # List of model values at times where data points are
 
@@ -155,20 +162,22 @@ class CurveComparison:
 
 if __name__ == '__main__':
 
-    sat = AnalyzeCrossing(cb="Earth", H=400, E_kev=2.0)
-    comp_obj = CurveComparison(sat, "setting")
+    sat = AnalyzeCrossing(cb_str, H, E_kev)
+    comp_obj = CurveComparison(sat, hc_type, N0=N0)
 
     print(f"First guess t0_1 = {comp_obj.t0_1:.2f} sec")
     print(f"Best fit t0_e = {comp_obj.t0_e:.2f} +/- {comp_obj.dt_e:.2f} sec")
 
-    t_hc_setting = np.flip(np.arange(comp_obj.t0_e, comp_obj.t0_e - sat.time_final, -bin_size))
-    t_hc_rising = np.arange(comp_obj.t0_e, comp_obj.t0_e + sat.time_final, bin_size)
+    if hc_type == "setting":
+        t_hc = np.flip(np.arange(comp_obj.t0_e, comp_obj.t0_e - sat.time_final, -bin_size))
+    elif hc_type == "rising":
+        t_hc = np.arange(comp_obj.t0_e, comp_obj.t0_e + sat.time_final, bin_size)
 
     # With the numbers that we're using, t0 ~ 2000 (rising) and 2305 (setting)
 
     plt.figure(1)
-    plt.plot(comp_obj.time_data, N*comp_obj.transmit_data, '.', label="Simulated Data")
-    plt.plot(t_hc_setting, N*comp_obj.transmit_model, label="Scaled Model")
+    plt.plot(comp_obj.time_data, N0*comp_obj.transmit_data, '.', label="Simulated Data")
+    plt.plot(t_hc, N0*comp_obj.transmit_model, label="Scaled Model")
     plt.ylabel(f"Counts per {bin_size} sec bin")
     plt.xlabel("Time (sec)")
 
@@ -177,5 +186,7 @@ if __name__ == '__main__':
     plt.plot(comp_obj.t0_guess_list, comp_obj.chisq_list)
     plt.ylabel(r"$\chi^2$")
     plt.xlabel(r"$t_0$ (sec)")
+    plt.ylim([46.5, 48.5])
+    plt.xlim([1999.66-0.15, 1999.66+0.15])
 
     plt.show()

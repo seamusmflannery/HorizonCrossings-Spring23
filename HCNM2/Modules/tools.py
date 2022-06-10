@@ -25,6 +25,7 @@ def convert_time_NICER(time):
     else:
         raise RuntimeError('time must be MET number or array/list of times')
 
+
 # This matrix transforms an ECI vector into the perifocal frame {p,q,h}
 def get_Q_matrix(i, raan, aop, hc_type):
     p_eci = np.array([m.cos(raan) * m.cos(aop) - m.sin(raan) * m.sin(aop) * m.cos(i),
@@ -83,9 +84,11 @@ def a_to_period(a_km):
     T = np.sqrt((4 * np.pi ** 2 * a_m ** 3) / (constants.G * constants.M_EARTH))   # sec
     return T
 
+
 def period_to_a(T):
     a = (((T ** 2) * constants.G * constants.M_EARTH / (4 * np.pi ** 2)) ** (1. / 3)) / (10 ** 3)  # km
     return a
+
 
 def point_on_earth(theta_list, phi_list):
     if isinstance(phi_list, np.integer) or isinstance(phi_list, np.float):
@@ -104,6 +107,7 @@ def point_on_earth(theta_list, phi_list):
         y = constants.b * np.sin(theta_column_vec) * np.sin(phi_column_vec)
         z = constants.c * np.cos(phi_column_vec)
         return np.hstack((x, y, z))
+
 
 # This function takes in an array of eci points (in km) and returns latitude, longitude, and altitude using pymap3d
 #  note that time seconds is a single time, float number
