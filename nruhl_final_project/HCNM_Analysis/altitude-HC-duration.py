@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 import sys
-sys.path.append("/Users/nathanielruhl/Desktop/HorizonCrossings-Summer22/nruhl_final_project/")  # add working directory, str(Path(__file__).parents[1])
+sys.path.append("/Users/nathanielruhl/Documents/HorizonCrossings-Summer22/nruhl_final_project/")  # add working directory, str(Path(__file__).parents[1])
 
 from AnalyzeCrossing import AnalyzeCrossing
 
@@ -35,25 +35,25 @@ for altitude in altitude_list:
     # Plot the tranmsittance curves
     plt.figure(1)
     plt.plot(time_array, transmit_array,
-        label=fr"H = {altitude} km, $\Delta t_{{c}}$ = {dt:.1f} sec")
+        label=fr"H = {altitude} km, $\Delta t_{{99}}$ = {dt:.1f} sec")
 
 plt.figure(1)
-plt.title("1.5 keV Earth Horizon Crossing Curves at Different Orbital Altitudes")
+# plt.title("1.5 keV Earth Horizon Crossing Curves at Different Orbital Altitudes")
 plt.ylabel("Transmittance")
 plt.xlabel("Time")
 plt.legend()
 
 plt.figure(2)
 plt.plot(altitude_list, dt_list)
-plt.title("Duration of 1.5 keV Earth Horizon Crossing Curves at Different Orbital Altitudes")
+# plt.title("Duration of 1.5 keV Earth Horizon Crossing Curves at Different Orbital Altitudes")
 plt.xlabel("Orbital Altitude (km)")
 plt.ylabel("Time from 1% to 99% Transmittance (sec)")
 plt.legend()
 
 plt.figure(3)
-plt.title("Slope of 2.0 keV Earth Horizon Crossing Curves at Different Orbital Altitudes")
+# plt.title("Slope of 1.5 keV Earth Horizon Crossing Curves at Different Orbital Altitudes")
 plt.plot(altitude_list, m50_list)
 plt.xlabel("Orbital Altitude (km)")
-plt.ylabel(r"Transmit vs time slope at $t_{50}$ (sec)")
+plt.ylabel(r"Slope of transmittance vs time curve at $t_{50}$")
 
 plt.show()

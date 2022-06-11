@@ -6,7 +6,7 @@ from pathlib import Path
 from scipy.interpolate import interp1d
 import numpy as np
 import sys
-sys.path.append("/Users/nathanielruhl/Desktop/HorizonCrossings-Summer22/nruhl_final_project/")  # add working directory, str(Path(__file__).parents[1])
+sys.path.append("/Users/nathanielruhl/Documents/HorizonCrossings-Summer22/nruhl_final_project/")  # add working directory, str(Path(__file__).parents[1])
 
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing
@@ -176,17 +176,19 @@ if __name__ == '__main__':
     # With the numbers that we're using, t0 ~ 2000 (rising) and 2305 (setting)
 
     plt.figure(1)
-    plt.plot(comp_obj.time_data, N0*comp_obj.transmit_data, '.', label="Simulated Data")
-    plt.plot(t_hc, N0*comp_obj.transmit_model, label="Scaled Model")
+    plt.plot(comp_obj.time_data, N0*comp_obj.transmit_data, '.', label=fr"Simulated Data ($N_0=244$, $s=0.05$)")
+    plt.plot(t_hc, N0*comp_obj.transmit_model, label="Scaled Transmittance Model")
     plt.ylabel(f"Counts per {bin_size} sec bin")
     plt.xlabel("Time (sec)")
+    plt.legend()
 
     plt.figure(2)
-    plt.title(fr"Minimum: $t_{{0,e}}$ = {comp_obj.t0_e:.2f} +/- {comp_obj.dt_e:.2f} sec")
-    plt.plot(comp_obj.t0_guess_list, comp_obj.chisq_list)
+    plt.plot(comp_obj.t0_guess_list, comp_obj.chisq_list,
+             label=fr"Minimum: $t_{{0,e}}$ = {comp_obj.t0_e:.2f} +/- {comp_obj.dt_e:.2f} sec")
     plt.ylabel(r"$\chi^2$")
     plt.xlabel(r"$t_0$ (sec)")
     plt.ylim([46.5, 48.5])
     plt.xlim([1999.66-0.15, 1999.66+0.15])
+    plt.legend()
 
     plt.show()

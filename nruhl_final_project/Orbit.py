@@ -27,6 +27,21 @@ class Orbit(Planet):
         ef = (np.pi/2) - self.theta
         return ef
 
+    # Functions for Kepler's Law
+    # Functions for Kepler's Law, semi-major axis (a, R_orbit for a circle) and orbital period (T), using known mass of earth
+
+    def period_to_a(T):
+        a = (((T ** 2) * G * self.M /
+            (4 * np.pi ** 2)) ** (1. / 3)) / (10 ** 3)  # km
+        return a
+
+
+    def a_to_period(self, a_km):
+        a_m = a_km * 10 ** 3   # convert a to meters
+        T = np.sqrt((4 * np.pi ** 2 * a_m ** 3) /
+                    (G * self.M))   # sec
+        return T
+
     @property
     def time_final(self):
         tf = self.epsilon_final/self.omega

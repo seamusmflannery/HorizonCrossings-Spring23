@@ -4,7 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.append("/Users/nathanielruhl/Desktop/HorizonCrossings-Summer22/nruhl_final_project/")
+sys.path.append("/Users/nathanielruhl/Documents/HorizonCrossings-Summer22/nruhl_final_project/")
 
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing
@@ -19,20 +19,32 @@ E_kev = 1.5 # keV
 hc_type = "rising"
 
 def main():
-    altitude_list = np.arange(300, 2100, 100)
-    dt_list = np.zeros_like(altitude_list, np.float)  # list containing uncertainties corresponding to altitude_list
+    altitude_list = np.arange(400, 2100, 100)
+    dt_list = np.zeros_like(altitude_list, np.float)  
+    dr_list = np.zeros_like(dt_list) # lists containing uncertainties corresponding to altitude_list
 
     for i, alt in enumerate(altitude_list):
         sat = AnalyzeCrossing(cb=cb_str, H=alt, E_kev=E_kev)
         comp_obj = CurveComparison(sat, hc_type, N)
         dt_list[i] = comp_obj.dt_e
+        dr_list[i] = comp_obj.dt_e * sat.R_orbit * sat.omega
 
-    plt.figure()
-    plt.title(r"$\delta t_e$ uncertainty as a function of orbital altitude")
+
+    # Plot results
+    plt.figure(1)
+    # plt.title(r"$\delta t_e$ uncertainty as a function of orbital altitude")
     plt.plot(altitude_list, dt_list, label=fr"{E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
-    plt.ylabel(r"$\delta t_e$ (sec)")
+    plt.ylabel(r"Temporal uncertaintainty in HCNM meauremental, $\delta t_e$ (sec)")
     plt.xlabel("Orbital altitude (km)")
     plt.legend()
+
+    plt.figure(2)
+    # plt.title(r"$\delta r_e$ uncertainty as a function of orbital altitude")
+    plt.plot(altitude_list, dr_list,
+             label=fr"{E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
+    plt.ylabel(r"Positional uncertainty in HCNM measurement, $\delta r_e$ (km)")
+    plt.xlabel("Orbital altitude (km)")
+
     plt.show()
     return 0
 
