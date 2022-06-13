@@ -1,12 +1,12 @@
 # Author: Nathaniel Ruhl
-# This script is used to make sure the process of sliding the transmittance curve works for both rising and setting horizon crossings
-
+# This script is used to make sure the process of sliding the transmittance curve works for both rising
+# and setting horizon crossings
 import matplotlib.pyplot as plt
-from pathlib import Path
 from scipy.interpolate import interp1d
 import numpy as np
 import sys
-sys.path.append("/Users/nathanielruhl/Documents/HorizonCrossings-Summer22/nruhl_final_project/")  # add working directory, str(Path(__file__).parents[1])
+sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project")
+# ^ add working directory, str(Path(__file__).parents[1])
 
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing
@@ -16,13 +16,13 @@ cb_str = "Earth"
 hc_type = "rising"
 N0 = 244 # average number of unattenuated counts in data
 E_kev = 1.5
-H = 420  # km, orbital altitude
+H = 212000  # km, orbital altitude
 bin_size = 1
 comp_range = [0.01, 0.99] # range of transmittance in which to compare the curves
 
 # Parameters involved in generating hc data
 std = 0.05  # standard deviation of normally-distributed noise
-np.random.seed(3)
+#np.random.seed(3)
 
 # This function generates the horizon crossing times and transmittance arrays for both model and data
 def generate_crossings(sat, hc_type):
@@ -112,14 +112,23 @@ class CurveComparison:
                 time_crossing_model = np.flip(np.arange(t0_guess, t0_guess - self.sat.time_final, -bin_size))
 
             # Note that however this interpolation is done, the model and data times need to be in the same order
-            model_rate_vs_time = interp1d(time_crossing_model, self.N0*self.transmit_model, kind='cubic', fill_value='extrapolate')
-            model_rate_interp = model_rate_vs_time(time_crossing_data)
+            model_rate_vs_time = interp1d(time_crossing_model, self.N0*self.transmit_model, kind='linear')
+            model_rate_interp = model_rate_vs_time(time_crossing_data[weight_range])
             # List of model values at times where data points are
 
             # Chi-squared test in weight_range of full curve
             chisq = np.sum(
-                (rate_data[weight_range] - model_rate_interp[weight_range]) ** 2 / model_rate_interp[weight_range])
+                (rate_data[weight_range] - model_rate_interp) ** 2 / model_rate_interp)
             chisq_list[indx] = chisq
+            if chisq < 0:
+                print("rate_data[weight_range] = " + str(indx))
+                print(rate_data[weight_range])
+                print("model_rate_interp[weight_range] = " + str(indx))
+                print(model_rate_interp[weight_range])
+                print(chisq)
+            # plt.plot(rate_data[weight_range], '.')
+            # plt.plot(model_rate_interp[weight_range], '.')
+            # plt.show()
 
         t0_e = t_start_list[np.argmin(chisq_list)]
 
@@ -187,8 +196,8 @@ if __name__ == '__main__':
              label=fr"Minimum: $t_{{0,e}}$ = {comp_obj.t0_e:.2f} +/- {comp_obj.dt_e:.2f} sec")
     plt.ylabel(r"$\chi^2$")
     plt.xlabel(r"$t_0$ (sec)")
-    plt.ylim([46.5, 48.5])
-    plt.xlim([1999.66-0.15, 1999.66+0.15])
+    plt.ylim([min(comp_obj.chisq_list), min(comp_obj.chisq_list)+20])
+    plt.xlim([comp_obj.t0_e-1, comp_obj.t0_e+1])
     plt.legend()
 
     plt.show()

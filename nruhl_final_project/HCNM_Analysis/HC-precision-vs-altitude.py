@@ -4,7 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.append("/Users/nathanielruhl/Documents/HorizonCrossings-Summer22/nruhl_final_project/")
+sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project/")
 
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing
@@ -20,7 +20,7 @@ hc_type = "rising"
 
 def main():
     altitude_list = np.arange(400, 2100, 100)
-    dt_list = np.zeros_like(altitude_list, np.float)  
+    dt_list = np.zeros_like(altitude_list, float)
     dr_list = np.zeros_like(dt_list) # lists containing uncertainties corresponding to altitude_list
 
     for i, alt in enumerate(altitude_list):
@@ -31,6 +31,36 @@ def main():
 
 
     # Plot results
+    #plt.figure(1)
+    # plt.title(r"$\delta t_e$ uncertainty as a function of orbital altitude")
+    #plt.plot(altitude_list, dt_list, label=fr"{E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
+    #plt.ylabel(r"Temporal uncertaintainty in HCNM meauremental, $\delta t_e$ (sec)")
+    #plt.xlabel("Orbital altitude (km)")
+    #plt.legend()
+
+    #plt.figure(2)
+    # plt.title(r"$\delta r_e$ uncertainty as a function of orbital altitude")
+    #plt.plot(altitude_list, dr_list,
+             #label=fr"{E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
+    #plt.ylabel(r"Positional uncertainty in HCNM measurement, $\delta r_e$ (km)")
+    #plt.xlabel("Orbital altitude (km)")
+    #plt.show()
+    do_a_bunch(400, 2100, 100, 1000)
+    return 0
+
+
+def do_a_bunch(min_alt, max_alt, alt_interval, how_many):
+    altitude_list = np.arange(min_alt, max_alt, alt_interval)
+    dt_list = np.zeros_like(altitude_list, float)
+    dr_list = np.zeros_like(dt_list)
+    for j in range(how_many):
+        #np.random.seed(j)
+        for i, alt in enumerate(altitude_list):
+            sat = AnalyzeCrossing(cb=cb_str, H=alt, E_kev=E_kev)
+            comp_obj = CurveComparison(sat, hc_type, N)
+            dt_list[i] += comp_obj.dt_e / how_many
+            dr_list[i] += comp_obj.dt_e * sat.R_orbit * sat.omega / how_many
+            print("seed: " + str(j) + " altitude: " + str(alt))
     plt.figure(1)
     # plt.title(r"$\delta t_e$ uncertainty as a function of orbital altitude")
     plt.plot(altitude_list, dt_list, label=fr"{E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
@@ -47,6 +77,7 @@ def main():
 
     plt.show()
     return 0
+
 
 if __name__ == '__main__':
     import time
