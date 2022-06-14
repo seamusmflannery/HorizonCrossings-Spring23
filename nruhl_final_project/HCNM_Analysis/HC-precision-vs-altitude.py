@@ -80,10 +80,10 @@ def do_a_bunch(min_alt, max_alt, alt_interval, how_many):
 
     plt.show()
     f = open("dt_bunches.csv", "w")
-    f.write(dt_list)
+    f.write(str(dt_list))
     f.close()
     g = open("dr_bunches.csv", "w")
-    g.write(dr_list)
+    g.write(str(dr_list))
     g.close()
     return 0
 
