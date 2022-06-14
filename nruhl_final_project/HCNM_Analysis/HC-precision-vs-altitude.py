@@ -70,6 +70,7 @@ def do_a_bunch(min_alt, max_alt, alt_interval, how_many):
     plt.ylabel(r"Temporal uncertaintainty in HCNM meauremental, $\delta t_e$ (sec)")
     plt.xlabel("Orbital altitude (km)")
     plt.legend()
+    plt.savefig("dt_v_alt.png")
 
     plt.figure(2)
     # plt.title(r"$\delta r_e$ uncertainty as a function of orbital altitude")
@@ -77,14 +78,18 @@ def do_a_bunch(min_alt, max_alt, alt_interval, how_many):
              label=fr"{E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
     plt.ylabel(r"Positional uncertainty in HCNM measurement, $\delta r_e$ (km)")
     plt.xlabel("Orbital altitude (km)")
-
+    plt.savefig("dr_v_alt.png")
     plt.show()
-    f = open("dt_bunches.csv", "w")
-    f.write(str(dt_list))
-    f.close()
-    g = open("dr_bunches.csv", "w")
-    g.write(str(dr_list))
-    g.close()
+
+    dt = open("dt_bunches.csv", "w")
+    dt.write(str(dt_list))
+    dt.close()
+    dr = open("dr_bunches.csv", "w")
+    dr.write(str(dr_list))
+    dr.close()
+    altlist = open("alt_bunches.csv", "w")
+    altlist.write(str(altitude_list))
+    altlist.close()
     return 0
 
 

@@ -97,8 +97,8 @@ class CurveComparison:
             rate_data = self.N0*self.transmit_data[t0_1_index:t0_1_index+len(self.time_model)]
 
         # bin size must be greater than 2
-        t_start_list = np.arange(int(self.time_data[t0_1_index])-1,
-                                 int(self.time_data[t0_1_index])+1,
+        t_start_list = np.arange(int(self.time_data[t0_1_index])-2,
+                                 int(self.time_data[t0_1_index])+2,
                                  desired_precision)
 
         weight_range = np.where((self.transmit_model >= comp_range[0]) & (self.transmit_model <= comp_range[1]))[0]
