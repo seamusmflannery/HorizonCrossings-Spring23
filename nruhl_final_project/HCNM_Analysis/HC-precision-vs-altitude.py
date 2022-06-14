@@ -20,7 +20,7 @@ hc_type = "rising"
 
 
 def main():
-    do_a_bunch(400, 2100, 100, 10)
+    do_a_bunch(400, 2100, 100, 1000)
     return 0
 
 
