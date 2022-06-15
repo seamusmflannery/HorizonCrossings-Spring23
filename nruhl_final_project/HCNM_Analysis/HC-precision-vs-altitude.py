@@ -20,7 +20,7 @@ hc_type = "rising"
 
 
 def main():
-    do_a_bunch(400, 2100, 100, 1000)
+    do_a_bunch(400, 2100, 25, 100, "bunches2")
     return 0
 
 
@@ -52,7 +52,7 @@ def do_one():
     plt.show()
 
 
-def do_a_bunch(min_alt, max_alt, alt_interval, how_many):
+def do_a_bunch(min_alt, max_alt, alt_interval, how_many, out_name):
     altitude_list = np.arange(min_alt, max_alt, alt_interval)
     dt_list = np.zeros_like(altitude_list, float)
     dr_list = np.zeros_like(dt_list)
@@ -81,13 +81,13 @@ def do_a_bunch(min_alt, max_alt, alt_interval, how_many):
     plt.savefig("bunches/dr_v_alt.png")
     plt.show()
 
-    dt = open("bunches/dt_bunches.csv", "w")
+    dt = open("bunches/dt_"+ out_name , "w")
     dt.write(str(dt_list))
     dt.close()
-    dr = open("bunches/dr_bunches.csv", "w")
+    dr = open("bunches/dr_" + out_name, "w")
     dr.write(str(dr_list))
     dr.close()
-    altlist = open("bunches/alt_bunches.csv", "w")
+    altlist = open("bunches/alt" + out_name, "w")
     altlist.write(str(altitude_list))
     altlist.close()
     return 0
