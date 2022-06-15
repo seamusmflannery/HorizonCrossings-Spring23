@@ -4,7 +4,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.append("/homes/smflannery/HorizonCrossings-Summer22/nruhl_final_project")
+# sys.path.append("/homes/smflannery/HorizonCrossings-Summer22/nruhl_final_project")
+sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project")
 
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing
@@ -20,7 +21,8 @@ hc_type = "rising"
 
 
 def main():
-    do_a_bunch(400, 2100, 25, 100, "bunches2")
+    do_one()
+    #do_a_bunch(400, 2100, 25, 100)
     return 0
 
 
@@ -52,7 +54,7 @@ def do_one():
     plt.show()
 
 
-def do_a_bunch(min_alt, max_alt, alt_interval, how_many, out_name):
+def do_a_bunch(min_alt, max_alt, alt_interval, how_many):
     altitude_list = np.arange(min_alt, max_alt, alt_interval)
     dt_list = np.zeros_like(altitude_list, float)
     dr_list = np.zeros_like(dt_list)
@@ -81,13 +83,13 @@ def do_a_bunch(min_alt, max_alt, alt_interval, how_many, out_name):
     plt.savefig("bunches/dr_v_alt.png")
     plt.show()
 
-    dt = open("bunches/dt_"+ out_name , "w")
+    dt = open("bunches/dt_int_" + str(alt_interval) + "_iter_" + str(how_many), "w")
     dt.write(str(dt_list))
     dt.close()
-    dr = open("bunches/dr_" + out_name, "w")
+    dr = open("bunches/dr_int_" + str(alt_interval) + "_iter_" + str(how_many), "w")
     dr.write(str(dr_list))
     dr.close()
-    altlist = open("bunches/alt" + out_name, "w")
+    altlist = open("bunches/alt_int_" + str(alt_interval) + "_iter_" + str(how_many), "w")
     altlist.write(str(altitude_list))
     altlist.close()
     return 0
