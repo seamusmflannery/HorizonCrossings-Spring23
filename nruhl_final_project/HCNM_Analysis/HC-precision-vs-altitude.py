@@ -24,7 +24,7 @@ def main():
     # do_one()
     # do_a_bunch(400, 2100, 25, 100)
     # do_a_bunch_median(400, 2100, 25, 100)
-    plot_a_bunch(400,2100, 100, 5)
+    plot_a_bunch(400,2100, 25, 100)
     return 0
 
 
