@@ -1,3 +1,4 @@
+# Author Seamus Flannery
 import matplotlib.pyplot as plt
 import numpy as np
 import math
@@ -23,10 +24,14 @@ def plotter_earth(min_alt, max_alt, alt_interval):
     duration_list = np.zeros_like(alt_list, float)
     for i, alt in enumerate(alt_list):
         duration_list[i] = geometric_function(alt, r_earth, Grav_Const, m_earth, 85, 160)
+    print("Min Duration: " + str(np.min(duration_list)) + " at " + str(np.argmin(duration_list)*alt_interval) + " km altitude.")
     plt.figure(1)
     plt.title("Duration of Transmittivity Curve vs. Orbit Altitude")
     plt.plot(alt_list, duration_list)
+    plt.ylabel("Time (s)")
+    plt.xlabel("Altitude (km)")
     plt.show()
 
 
-plotter_earth(400, 1000, 5)
+
+plotter_earth(180, 20000, 5)
