@@ -22,7 +22,7 @@ hc_type = "rising"
 
 def main():
     test()
-    do_a_bunch_max_min(400, 2500, 25, 1000)
+    # do_a_bunch_max_min(400, 2500, 25, 1000)
     return 0
 
 
@@ -32,8 +32,9 @@ def test():
     # do_a_bunch_median(400, 2100, 25, 100)
     # plot_a_bunch(400,2100, 25, 100)
     # print(plot_inverse_root_fit([1, 2, 3, 4], [1, 0.7, 0.57, 0.5]))
-    do_a_bunch_max_min(400, 2100, 100, 1)
+    # do_a_bunch_max_min(400, 2100, 100, 1)
     # print(plot_fit([1, 2, 3], [1, 4, 9], 2))
+    write_data(400, 2100, 25, 10)
     return 0
 
 
