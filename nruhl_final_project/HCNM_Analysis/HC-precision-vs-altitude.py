@@ -21,8 +21,8 @@ hc_type = "rising"
 
 
 def main():
-    test()
-    # do_a_bunch_max_min(400, 2500, 25, 1000)
+    # test()
+    do_a_bunch_max_min(400, 2500, 25, 100)
     return 0
 
 
