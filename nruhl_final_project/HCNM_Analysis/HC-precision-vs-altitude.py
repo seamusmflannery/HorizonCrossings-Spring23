@@ -36,7 +36,7 @@ def test():
     # do_a_bunch_max_min(400, 2100, 100, 1)
     # print(poly_fit([1, 2, 3], [1, 4, 9], 2))
     write_data(300, 10000, 25, 1000)
-    #plot_read_data(25, 100)
+    plot_read_data(25, 1000)
     return 0
 
 
