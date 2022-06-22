@@ -5,8 +5,8 @@ import math
 
 r_earth = 6378 # kilometers
 Grav_Const = 6.6743 * (10 ** (-20))  # kilometers cubed, inverse kilograms, inverse seconds
-m_earth = 5.972 * (10 ** 24)  # kilograms
-
+m_earth = 5.972 * (10 ** 24) # kilograms
+Earth_lims = [85, 160] # approx 85km lower lim x-ray penetration, 160km for upper lim for Earth
 
 def geometric_function(altitude, r_planet, grav_const, m_planet, zero_transmit_tang_alt, one_transmit_tang_alt):
     r_orbit = r_planet+altitude  # km
@@ -19,11 +19,11 @@ def geometric_function(altitude, r_planet, grav_const, m_planet, zero_transmit_t
     return duration
 
 
-def plotter_earth(min_alt, max_alt, alt_interval):
+def duration_v_alt(min_alt, max_alt, alt_interval, lims):
     alt_list = np.arange(min_alt, max_alt, alt_interval)
     duration_list = np.zeros_like(alt_list, float)
     for i, alt in enumerate(alt_list):
-        duration_list[i] = geometric_function(alt, r_earth, Grav_Const, m_earth, 85, 160)
+        duration_list[i] = geometric_function(alt, r_earth, Grav_Const, m_earth, lims[0], lims[1])
     print("Min Duration: " + str(np.min(duration_list)) + " at " + str(np.argmin(duration_list)*alt_interval) + " km altitude.")
     plt.figure(1)
     plt.title("Duration of Transmittivity Curve vs. Orbit Altitude")
@@ -34,4 +34,4 @@ def plotter_earth(min_alt, max_alt, alt_interval):
 
 
 
-plotter_earth(180, 20000, 5)
+duration_v_alt(180, 20000, 5, Earth_lims)
