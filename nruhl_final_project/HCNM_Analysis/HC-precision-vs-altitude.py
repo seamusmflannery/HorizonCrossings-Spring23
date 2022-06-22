@@ -34,7 +34,10 @@ def test():
     # print(plot_inverse_root_fit([1, 2, 3, 4], [1, 0.7, 0.57, 0.5]))
     # do_a_bunch_max_min(400, 2100, 100, 1)
     # print(plot_fit([1, 2, 3], [1, 4, 9], 2))
-    write_data(400, 2100, 25, 10)
+    # write_data(400, 2100, 25, 10)
+    dt_data = read_data("sample_data/dr_int_25_iter_10")
+    print(str(dt_data))
+    print(str(dt_data[0]))
     return 0
 
 
@@ -320,10 +323,9 @@ def plot_a_bunch(min_alt, max_alt, alt_interval, how_many):
     altlist.close()
     return 0
 
-#TODO finish this
+#TODO finish this?
 def read_data(pathname):
-    with open(str(pathname)) as dt_data:
-        lines = dt_data.readlines()
+    return np.loadtxt(pathname)
 
 
 def write_data(min_alt, max_alt, alt_interval, how_many):
@@ -336,7 +338,8 @@ def write_data(min_alt, max_alt, alt_interval, how_many):
             comp_obj = CurveComparison(sat, hc_type, N)
             dt_list[i][j] = comp_obj.dt_e
             dr_list[i][j] = comp_obj.dt_e * sat.R_orbit * sat.omega
-            print("iteration: " + str(j) + " altitude: " + str(alt))
+            print("iteration: " + str(j) + "/" + str(how_many) + " altitude: " + str(alt) +
+                  ", " + str(j/how_many) + "% complete")
     dt_data = open("sample_data/dt_int_" + str(alt_interval) + "_iter_" + str(how_many), "w")
     dt_data.write(str(dt_list))
     dt_data.close()
