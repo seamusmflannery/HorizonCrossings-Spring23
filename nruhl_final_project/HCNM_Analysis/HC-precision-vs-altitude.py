@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import datetime
+from math import e
 sys.path.append("/homes/smflannery/HorizonCrossings-Summer22/nruhl_final_project")
 sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project")
 
@@ -35,7 +36,7 @@ def test():
     # print(plot_inverse_root_fit([1, 2, 3, 4], [1, 0.7, 0.57, 0.5]))
     # do_a_bunch_max_min(400, 2100, 100, 1)
     # print(poly_fit([1, 2, 3], [1, 4, 9], 2))
-    write_data(300, 10000, 25, 1000)
+    # write_data(300, 10000, 25, 1000)
     plot_read_data(25, 1000)
     return 0
 
@@ -63,13 +64,14 @@ def plot_inverse_root_fit(x, y, printout="false"):
 
 
 def exponential(x, a, b, k):
-    return (a*(b**-x))+k
+    return (a*(e**(b*x)))+k
 
 
 def plot_exponential_fit(x, y, printout="false"):
-    fit_params = curve_fit(exponential, x, y)
+    fit_params = curve_fit(exponential, x, y, p0=[0.01, -200, 0])
     if printout == "true":
         print("a= " + str(fit_params[0][0]) + "\nb= " + str(fit_params[0][1]) + "\nk= " +str(fit_params[0][2]))
+        print("error: " +str(fit_params[1]))
     out_array = exponential(x, fit_params[0][0], fit_params[0][1], fit_params[0][2])
     return out_array
 
@@ -147,10 +149,11 @@ def plot_read_data(interval, iter):
     plot_data(dt_list, dr_list, altitude_list)
 
 
-def plot_data(dt_list, dr_list, altitude_list):
+def plot_data(dt_list, dr_list, altitude_list, save="false"):
     dt_sort = np.sort(dt_list)
     dr_sort = np.sort(dr_list)
     dt_median = np.median(dt_sort, axis=1)
+    dt_avg = np.
     dr_median = np.median(dr_sort, axis=1)
     dt_66 = np.percentile(dt_list, 66, axis=1)
     dt_33 = np.percentile(dt_list, 33, axis=1)
@@ -174,6 +177,8 @@ def plot_data(dt_list, dr_list, altitude_list):
     # dr_66sqfit = plot_inverse_root_fit(altitude_list, dr_66)
     print("dt median inverse log fit: ")
     dt_median_invlog_fit = plot_inverse_log_fit(altitude_list, dt_median, "true")
+    print("dt median exponential fit: ")
+    dt_median_exponentialfit = plot_exponential_fit(altitude_list, dt_median, "true")
     print("dt 66 inverse log fit: ")
     dt_66_invlog_fit = plot_inverse_log_fit(altitude_list, dt_66, "true")
     print("dt 33 inverse log fit: ")
@@ -185,48 +190,25 @@ def plot_data(dt_list, dr_list, altitude_list):
     print("dr 33 inverse log fit: ")
     dr_33_invlog_fit = plot_inverse_log_fit(altitude_list, dr_33, "true")
 
-    # dt_median_exponential_fit = plot_exponential_fit(altitude_list, dt_median, "true")
-
     plt.figure(1)
     plt.title(r"$\delta t_e$ uncertainty as a function of orbital altitude")
-    # plt.plot(altitude_list, dt_66, label=fr"upper 66 data")
-    # plt.plot(altitude_list, dt_33, label=fr"lower 33 data")
-    # plt.plot(altitude_list, dt_median, label=fr"median data")
-    # plt.plot(altitude_list, dt_66fit, label=fr"upper 66 poly fit")
-    # plt.plot(altitude_list, dt_33fit, label=fr"lower 33 poly fit")
-    # plt.plot(altitude_list, dt_medianfit, label=fr"median poly fit")
-    # plt.plot(altitude_list, dt_66sqfit, label=fr"upper 66  sq-1 fit")
-    # plt.plot(altitude_list, dt_33sqfit, label=fr"lower 33 sq-1 fit")
-    # plt.plot(altitude_list, dt_mediansqfit, label=fr"median sq-1 fit")
-    plt.plot(altitude_list, dt_median_invlog_fit, label=fr"median invlog fit")
-    # plt.plot(altitude_list, dt_66_invlog_fit, label=fr"66 invlog fit")
-    # plt.plot(altitude_list, dt_33_invlog_fit, label=fr"33 invlog fit")
-    error = np.ones(len(altitude_list))*(dt_66_invlog_fit-dt_33_invlog_fit) / 2
-    plt.errorbar(altitude_list, dt_median_invlog_fit, yerr=error, fmt="+")
-    # plt.plot(altitude_list, dt_median_exponential_fit, label=fr"median exponential fit")
+    plt.fill_between(altitude_list, dt_66_invlog_fit, dt_33_invlog_fit)
+    plt.plot(altitude_list, dt_median, label=fr"median", color="orange")
+    plt.plot(altitude_list, dt_median_invlog_fit, label=fr"median invlog fit", color="red")
     plt.ylabel(
         fr"Temporal uncertaintainty in HCNM meauremental, $\delta t_e$ (sec), {E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
     plt.xlabel("Orbital altitude (km)")
     plt.legend()
-    plt.savefig("plots/dt_v_alt_" + str(datetime.datetime.now()) + ".png")
-
+    if save == "true":
+        plt.savefig("plots/dt_v_alt_" + str(datetime.datetime.now()) + ".png")
     plt.figure(2)
     plt.title(r"$\delta r_e$ uncertainty as a function of orbital altitude")
-    #plt.plot(altitude_list, dr_66, label=fr"upper 66 data")
-    #plt.plot(altitude_list, dr_33, label=fr"lower 33 data")
-    plt.plot(altitude_list, dr_median, label=fr"median data")
-    # plt.plot(altitude_list, dr_66fit, label=fr"upper 66 poly fit")
-    # plt.plot(altitude_list, dr_33fit, label=fr"lower 33 poly fit")
-    # plt.plot(altitude_list, dr_medianfit, label=fr"median poly fit")
-    # plt.plot(altitude_list, dr_66sqfit, label=fr"upper 66  sq-1 fit")
-    # plt.plot(altitude_list, dr_33sqfit, label=fr"lower 33 sq-1 fit")
-    # plt.plot(altitude_list, dr_mediansqfit, label=fr"median sq-1 fit")
-    plt.plot(altitude_list, dr_median_invlog_fit, label=fr"median invlog fit")
-    plt.plot(altitude_list, dr_66_invlog_fit, label=fr"std. dev", color="red")
-    plt.plot(altitude_list, dr_33_invlog_fit, color="red")
+    plt.fill_between(altitude_list, dr_33_invlog_fit, dr_66_invlog_fit)
+    plt.plot(altitude_list, dr_median_invlog_fit, label=fr"median invlog fit", color="red")
     plt.ylabel(r"Positional uncertainty in HCNM measurement, $\delta r_e$ (km)")
     plt.xlabel("Orbital altitude (km)")
-    plt.savefig("plots/dr_v_alt_" + str(datetime.datetime.now()) + ".png")
+    if save == "true":
+        plt.savefig("plots/dr_v_alt_" + str(datetime.datetime.now()) + ".png")
     plt.legend()
     plt.show()
 

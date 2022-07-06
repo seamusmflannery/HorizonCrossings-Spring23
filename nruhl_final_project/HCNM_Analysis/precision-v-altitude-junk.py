@@ -148,3 +148,33 @@
 #     altlist.write(str(altitude_list))
 #     altlist.close()
 #     return 0
+
+
+# plt.plot(altitude_list, dt_66, label=fr"upper 66 data")
+# plt.plot(altitude_list, dt_33, label=fr"lower 33 data")
+# plt.plot(altitude_list, dt_median, label=fr"median data")
+# plt.plot(altitude_list, dt_66fit, label=fr"upper 66 poly fit")
+# plt.plot(altitude_list, dt_33fit, label=fr"lower 33 poly fit")
+# plt.plot(altitude_list, dt_medianfit, label=fr"median poly fit")
+# plt.plot(altitude_list, dt_66sqfit, label=fr"upper 66  sq-1 fit")
+# plt.plot(altitude_list, dt_33sqfit, label=fr"lower 33 sq-1 fit")
+# plt.plot(altitude_list, dt_mediansqfit, label=fr"median sq-1 fit")
+# plt.plot(altitude_list, dt_66_invlog_fit, label=fr"66 invlog fit")
+# plt.plot(altitude_list, dt_33_invlog_fit, label=fr"33 invlog fit")
+# error = np.ones(len(altitude_list))*(dt_66_invlog_fit-dt_33_invlog_fit) / 2
+# plt.errorbar(altitude_list, dt_median_invlog_fit, yerr=error, fmt="+")
+# plt.plot(altitude_list, dt_median_exponential_fit, label=fr"median exponential fit")
+
+
+# plt.plot(altitude_list, dr_66, label=fr"upper 66 data")
+# plt.plot(altitude_list, dr_33, label=fr"lower 33 data")
+# plt.plot(altitude_list, dr_66fit, label=fr"upper 66 poly fit")
+# plt.plot(altitude_list, dr_33fit, label=fr"lower 33 poly fit")
+# plt.plot(altitude_list, dr_medianfit, label=fr"median poly fit")
+# plt.plot(altitude_list, dr_66sqfit, label=fr"upper 66  sq-1 fit")
+# plt.plot(altitude_list, dr_33sqfit, label=fr"lower 33 sq-1 fit")
+# plt.plot(altitude_list, dr_mediansqfit, label=fr"median sq-1 fit")
+# plt.plot(altitude_list, dr_median, label=fr"median data")
+# plt.plot(altitude_list, dr_66_invlog_fit, label=fr"std. dev", color="red")
+# plt.plot(altitude_list, dr_33_invlog_fit, color="red")
+# dt_median_exponential_fit = plot_exponential_fit(altitude_list, dt_median, "true")
