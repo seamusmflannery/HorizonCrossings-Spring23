@@ -4,6 +4,8 @@
 import matplotlib.pyplot as plt
 from pathlib import Path
 from scipy.interpolate import interp1d
+from scipy.optimize import curve_fit
+from scipy.interpolate import RBFInterpolator
 import numpy as np
 import sys
 sys.path.append("/Users/nathanielruhl/Documents/HorizonCrossings-Summer22/nruhl_final_project/")# add working directory, str(Path(__file__).parents[1])
@@ -23,7 +25,6 @@ comp_range = [0.01, 0.99]  # range of transmittance in which to compare the curv
 # Parameters involved in generating hc data
 std = 0.05  # standard deviation of normally-distributed noise
 np.random.seed(3)
-
 
 # This function generates the horizon crossing times and transmittance arrays for both model and data
 def generate_crossings(sat, hc_type):
@@ -53,7 +54,8 @@ def generate_crossings(sat, hc_type):
 
 # This class executes the curve CurveComparison
 class CurveComparison:
-    def __init__(self, sat, hc_type, N0):
+    def __init__(self, sat, hc_type, N0, interp_type="cubic"):
+        self.interp_type = interp_type
         self.sat = sat
         self.hc_type = hc_type  # want this to be autonomous
         self.N0 = N0
@@ -64,10 +66,11 @@ class CurveComparison:
         self.t0_e, self.t0_guess_list, self.chisq_list = self.locate_t0_step2()
         self.dt_e = self.analyze_chisq()
 
+
     # This function is used to identify the model time (from t0)
     def time_vs_transmit_model(self, transmit_approx_50):
         frange = np.where((self.transmit_model > 0.01) & (self.transmit_model < 0.99))[0]    # indices for which transmit vs time is 1-1
-        time_vs_transmit = interp1d(x=self.transmit_model[frange], y=self.time_model[frange], kind='cubic')
+        time_vs_transmit = interp1d(x=self.transmit_model[frange], y=self.time_model[frange], kind=self.interp_type)
         return time_vs_transmit(transmit_approx_50)
 
     # first guess of t0 by comparing 50% points
@@ -106,7 +109,7 @@ class CurveComparison:
 
         t_start_list = np.arange(self.t0_1-1,
                                  self.t0_1+1,
-                                 desired_precision)
+                                 0.05) # desired_precision for auto
 
         weight_range = np.where((self.transmit_model >= comp_range[0]) & (self.transmit_model <= comp_range[1]))[0]
 
@@ -121,12 +124,12 @@ class CurveComparison:
                 continue
 
             # Note that however this interpolation is done, the model and data times need to be in the same order
-            model_rate_vs_time = interp1d(time_crossing_model, self.N0*self.transmit_model, kind='cubic')
+            model_rate_vs_time = interp1d(time_crossing_model, self.N0*self.transmit_model, kind=self.interp_type)
             model_rate_interp = model_rate_vs_time(time_crossing_data[weight_range])
             # List of model values at times where data points are
 
             if any(model_rate_interp <= 0):
-                print("Cubic spline went negative")
+                print(self.interp_type + " spline went negative")
 
             # Chi-squared test in weight_range of full curve
             chisq = np.sum(
@@ -139,17 +142,17 @@ class CurveComparison:
 
     # Methods to calculate the chisq+1 error
     def analyze_chisq(self):
-        upper_t0 = self.bisection_algorithm_chisq(a0=self.t0_e, b0=self.t0_e + 1.5, Y_TOL=10 ** (-5.), NMAX=50,
+        upper_t0 = self.bisection_algorithm_chisq(a0=self.t0_e, b0=self.t0_e + 1.5, Y_TOL=0.5*10 ** (-5.), NMAX=50,
                                                   chisq_goal=self.chisq_vs_time(self.t0_e)+1)
-        lower_t0 = self.bisection_algorithm_chisq(a0=self.t0_e, b0=self.t0_e - 1.5, Y_TOL=10 ** (-5.), NMAX=50,
+        lower_t0 = self.bisection_algorithm_chisq(a0=self.t0_e, b0=self.t0_e - 1.5, Y_TOL=0.5*10 ** (-5.), NMAX=50,
                                                   chisq_goal=self.chisq_vs_time(self.t0_e)+1)
 
         # return the larger of the two
-        if self.chisq_vs_time(upper_t0) > self.chisq_vs_time(lower_t0):
-            chisq_error = upper_t0 - self.t0_e
-        else:
-            chisq_error = abs(lower_t0 - self.t0_e)
-
+        # if self.chisq_vs_time(upper_t0) > self.chisq_vs_time(lower_t0):
+        #     chisq_error = upper_t0 - self.t0_e
+        # else:
+        #     chisq_error = abs(lower_t0 - self.t0_e)
+        chisq_error = (abs(lower_t0 - self.t0_e) + (upper_t0 - self.t0_e)) / 2
         return chisq_error
 
     def bisection_algorithm_chisq(self, a0, b0, Y_TOL, NMAX, chisq_goal):
@@ -168,8 +171,19 @@ class CurveComparison:
         print(f'Bisection Not Found to tolerance in NMAX, c = {c}')
         return c
 
+
+
     def chisq_vs_time(self, t0):
         func = interp1d(self.t0_guess_list, self.chisq_list, kind='cubic', fill_value="extrapolate")
+        # ATTEMPTED EDITS FOR GAUSSIAN FIT/INTERP SOLVE (DEFUNCT)
+        # gaussian = lambda x, a, b, c, k : k + a * np.exp(-((x - b) ** 2) / (2 * c ** 2))
+        # popt, pcov = curve_fit(gaussian, self.t0_guess_list, self.chisq_list, bounds=([-500, 1900, 0, 0],[0, 2100, 10, 10000]))
+        # print("a, b, c, k: "+ str(popt))
+        # plt.plot(self.t0_guess_list, self.chisq_list, color="blue")
+        # plt.plot(self.t0_guess_list, gaussian(self.t0_guess_list, *popt), color="red")
+        # plt.show()
+        # func = RBFInterpolator(self.t0_guess_list, self.chisq_list, kernel='gaussian')
+        #return gaussian(t0, *popt)
         return func(t0)
 
     def locate_t0_alternative(self):

@@ -7,9 +7,12 @@ P2 = {
     "Radius": 6378.137,  # km, semi-major axis (equatorial radius)
     "surface_gravity": 9.81,  # m/s^2, acceleration due to gravity at sea level
 
-    # Density Profile
-    "surface_density": 0.001225,  # g/cm^3
-    "scale_height": 11,  # km, scale height for density exponential
+    # Editted Density Profile
+    "surface_density": 0.001,  # g/cm^3
+    "scale_height": 1,  # km, scale height for density exponential
+    # Default Density Profile
+    # "surface_density": 0.001225,  # g/cm^3
+    # "scale_height": 11,  # km, scale height for density exponential
 
     # Volumetric mix of the atmosphere
     "mix_N": 0.78,
