@@ -18,7 +18,7 @@ from tcc_slide import CurveComparison, generate_crossings
 N = 5378 # average number of unattenuated counts in data
 bin_size = 1
 comp_range = [0.01, 0.99] # range of transmittance in which to compare the curves
-cb_str = "Earth"
+cb_str = "Mars"
 E_kev = 1.5 # keV
 hc_type = "rising"
 
