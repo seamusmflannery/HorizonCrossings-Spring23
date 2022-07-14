@@ -24,9 +24,7 @@ hc_type = "rising"
 
 
 def main():
-    write_data(500, 10000, 25, 1000)
-    plot_read_data(cb_str, 25, 1000)
-    #write_data(200, 10000, 25, 1000)
+    write_data(200, 10000, 25, 1000)
     #test()
     return 0
 
@@ -97,7 +95,7 @@ def inverse_log(x, a, b, k):
     return b/(np.log10(a*x))+k
 
 def plot_inverse_log_fit(x, y, printout="false"):
-    fit_params = curve_fit(inverse_log, x, y, bounds=([0, -np.inf, -np.inf], np.inf))
+    fit_params = curve_fit(inverse_log, x, y)
     if printout == "true":
         print("a= " + str(fit_params[0][0]) + "\nb= " + str(fit_params[0][1]) + "\nk= " +str(fit_params[0][2]))
     out_array = inverse_log(x, fit_params[0][0], fit_params[0][1], fit_params[0][2])
@@ -148,17 +146,17 @@ def write_data(min_alt, max_alt, alt_interval, how_many):
                   ", " + str(round((j*len(altitude_list)+i+1)*100/(how_many*len(altitude_list)), 2)) + "% complete")
     dt_path = "sample_data/" + cb_str + "_dt_int_" + str(alt_interval) + "_iter_" + str(how_many)
     print(dt_path)
-    dr_path = "sample_data/" + cb_str + "_dr_int_" + str(alt_interval) + "_iter_" + str(how_many)
-    alt_path = "sample_data/" + cb_str + "_alt_int_" + str(alt_interval) + "_iter_" + str(how_many)
+    dr_path = "sample_data/" + cb_str + "dr_int_" + str(alt_interval) + "_iter_" + str(how_many)
+    alt_path = "sample_data/" + cb_str + "alt_int_" + str(alt_interval) + "_iter_" + str(how_many)
     np.save(dt_path, dt_list)
     np.save(dr_path, dr_list)
     np.save(alt_path, altitude_list)
 
 def plot_read_data(planet, interval, iter):
     suffix = "_int_" + str(interval) + "_iter_" + str(iter) + ".npy"
-    dt_name = "sample_data/" + planet + "_dt" + suffix
-    dr_name = "sample_data/" + planet + "_dr" + suffix
-    alt_name = "sample_data/" + planet + "_alt" + suffix
+    dt_name = "sample_data/" + planet + "dt" + suffix
+    dr_name = "sample_data/" + planet + "dr" + suffix
+    alt_name = "sample_data/" + planet + "alt" + suffix
     dt_list = read_data(dt_name)
     dr_list = read_data(dr_name)
     altitude_list = read_data(alt_name)
@@ -179,7 +177,6 @@ def plot_data(dt_list, dr_list, altitude_list, save="false"):
     dt_median_invlog_fit = plot_inverse_log_fit(altitude_list, dt_median, "true")
     print("dt 66 inverse log fit: ")
     dt_66_invlog_fit = plot_inverse_log_fit(altitude_list, dt_66, "true")
-    plt.plot(altitude_list, dt_66_invlog_fit)
     print("dt 33 inverse log fit: ")
     dt_33_invlog_fit = plot_inverse_log_fit(altitude_list, dt_33, "true")
     # dr fits
@@ -189,6 +186,10 @@ def plot_data(dt_list, dr_list, altitude_list, save="false"):
     dr_66_invlog_fit = plot_inverse_log_fit(altitude_list, dr_66, "true")
     print("dr 33 inverse log fit: ")
     dr_33_invlog_fit = plot_inverse_log_fit(altitude_list, dr_33, "true")
+    print("dr median sq fit: ")
+    dr_mediansqfit = plot_root_fit(altitude_list, dr_median, "true")
+    print("dr median inverse sq fit: ")
+    dr_medianinvsqfit = plot_inverse_root_fit(altitude_list, dr_median, "true")
 
     dt_log_data = convert_to_log_scales(altitude_list, dt_median)
     fit_y_dt = poly_fit(dt_log_data[0], dt_log_data[1], 1)
