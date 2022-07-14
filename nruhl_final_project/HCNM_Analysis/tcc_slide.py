@@ -4,8 +4,8 @@
 import matplotlib.pyplot as plt
 from pathlib import Path
 from scipy.interpolate import interp1d
-from scipy.optimize import curve_fit
-from scipy.interpolate import RBFInterpolator
+#from scipy.optimize import curve_fit
+#from scipy.interpolate import RBFInterpolator
 import numpy as np
 import sys
 sys.path.append("/Users/nathanielruhl/Documents/HorizonCrossings-Summer22/nruhl_final_project/")# add working directory, str(Path(__file__).parents[1])
@@ -106,12 +106,12 @@ class CurveComparison:
             rate_data = self.N0*self.transmit_data[t0_1_index:t0_1_index+len(self.time_model)]
             transmit_data = self.transmit_data[t0_1_index -
                                                len(self.time_model):t0_1_index]
-
-        t_start_list = np.arange(self.t0_1-1,
-                                 self.t0_1+1,
-                                 0.05) # desired_precision for auto
-
+        # set ranges for testing
         weight_range = np.where((self.transmit_model >= comp_range[0]) & (self.transmit_model <= comp_range[1]))[0]
+        side_range = 1 / 25 * len(weight_range)
+        t_start_list = np.arange(self.t0_1 - side_range,
+                                 self.t0_1 + side_range,
+                                 desired_precision)
 
         chisq_list = np.zeros(len(t_start_list))
         for indx, t0_guess in enumerate(t_start_list):
@@ -142,17 +142,17 @@ class CurveComparison:
 
     # Methods to calculate the chisq+1 error
     def analyze_chisq(self):
-        upper_t0 = self.bisection_algorithm_chisq(a0=self.t0_e, b0=self.t0_e + 1.5, Y_TOL=0.5*10 ** (-5.), NMAX=50,
+        upper_t0 = self.bisection_algorithm_chisq(a0=self.t0_e, b0=self.t0_e + 1.5, Y_TOL=10 ** (-5.), NMAX=50,
                                                   chisq_goal=self.chisq_vs_time(self.t0_e)+1)
-        lower_t0 = self.bisection_algorithm_chisq(a0=self.t0_e, b0=self.t0_e - 1.5, Y_TOL=0.5*10 ** (-5.), NMAX=50,
+        lower_t0 = self.bisection_algorithm_chisq(a0=self.t0_e, b0=self.t0_e - 1.5, Y_TOL=10 ** (-5.), NMAX=50,
                                                   chisq_goal=self.chisq_vs_time(self.t0_e)+1)
 
         # return the larger of the two
-        # if self.chisq_vs_time(upper_t0) > self.chisq_vs_time(lower_t0):
-        #     chisq_error = upper_t0 - self.t0_e
-        # else:
-        #     chisq_error = abs(lower_t0 - self.t0_e)
-        chisq_error = (abs(lower_t0 - self.t0_e) + (upper_t0 - self.t0_e)) / 2
+        if self.chisq_vs_time(upper_t0) > self.chisq_vs_time(lower_t0):
+            chisq_error = upper_t0 - self.t0_e
+        else:
+            chisq_error = abs(lower_t0 - self.t0_e)
+        #chisq_error = (abs(lower_t0 - self.t0_e) + (upper_t0 - self.t0_e)) / 2
         return chisq_error
 
     def bisection_algorithm_chisq(self, a0, b0, Y_TOL, NMAX, chisq_goal):

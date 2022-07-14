@@ -18,7 +18,7 @@ from AnalyzeCrossing import AnalyzeCrossing
 from tcc_slide import CurveComparison
 
 # Global parameters to be used in the analysis
-cb_str = "Earth"
+cb_str = "Venus"
 hc_type = "rising"
 N0 = 5378  # average number of unattenuated counts in data
 E_kev = 1.5
@@ -123,11 +123,11 @@ class CurveComparison:
             transmit_data = self.transmit_data[t0_1_index -
                                                len(self.time_model):t0_1_index]
 
-        t_start_list = np.arange(self.t0_1 - 1,
-                                 self.t0_1 + 1,
-                                 desired_precision)
-
         weight_range = np.where((self.transmit_model >= comp_range[0]) & (self.transmit_model <= comp_range[1]))[0]
+        side_range = 1 / 25 * len(weight_range)
+        t_start_list = np.arange(self.t0_1 - side_range,
+                                 self.t0_1 + side_range,
+                                 desired_precision)
 
         chisq_list = np.zeros(len(t_start_list))
         fig, ax = plt.subplots(1, 2)
