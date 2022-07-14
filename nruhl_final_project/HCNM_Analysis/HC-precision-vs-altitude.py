@@ -24,10 +24,8 @@ hc_type = "rising"
 
 
 def main():
-    write_data(500, 10000, 25, 1000)
+    write_data(300, 10000, 25, 1000)
     plot_read_data(cb_str, 25, 1000)
-    #write_data(200, 10000, 25, 1000)
-    #test()
     return 0
 
 
@@ -39,13 +37,8 @@ def test():
     # print(plot_inverse_root_fit([1, 2, 3, 4], [1, 0.7, 0.57, 0.5]))
     # do_a_bunch_max_min(400, 2100, 100, 1)
     # print(poly_fit([1, 2, 3], [1, 4, 9], 2))
-<<<<<<< Updated upstream
-    write_data(500, 10000, 1000, 5)
-    plot_read_data(1000, 5)
-=======
     # write_data(300, 10000, 25, 1000)
-    plot_read_data(25, 1000)
->>>>>>> Stashed changes
+    plot_read_data(cb_str, 25, 1000)
     return 0
 
 
@@ -60,7 +53,7 @@ def poly_fit(x, y, degree, printout="false"):  #for polynomial fitting, returns 
 
 
 def sqrt_inverse(x, a):
-    return (a/np.sqrt(x))
+    return a/np.sqrt(x)
 
 def plot_inverse_root_fit(x, y, printout="false"):
     fit_params = curve_fit(sqrt_inverse, x, y)
@@ -189,7 +182,7 @@ def plot_data(dt_list, dr_list, altitude_list, save="false"):
     dr_66_invlog_fit = plot_inverse_log_fit(altitude_list, dr_66, "true")
     print("dr 33 inverse log fit: ")
     dr_33_invlog_fit = plot_inverse_log_fit(altitude_list, dr_33, "true")
-
+    # log scaling plots/fits
     dt_log_data = convert_to_log_scales(altitude_list, dt_median)
     fit_y_dt = poly_fit(dt_log_data[0], dt_log_data[1], 1)
     dr_log_data = convert_to_log_scales(altitude_list, dr_median)
@@ -201,15 +194,15 @@ def plot_data(dt_list, dr_list, altitude_list, save="false"):
     plt.plot(altitude_list, dt_median, label=fr"median", color="orange")
     plt.plot(altitude_list, dt_median_invlog_fit, label=fr"median invlog fit", color="red")
     plt.ylabel(
-        fr"Temporal uncertaintainty in HCNM meauremental, $\delta t_e$ (sec), {E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
+        fr"Temporal uncertaintainty in HCNM measurement, $\delta t_e$ (sec), {E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
     plt.xlabel("Orbital altitude (km)")
     plt.xscale("log")
     plt.yscale("log")
     plt.legend()
-    if save == "true":
-        plt.savefig("plots/dt_v_alt_" + str(datetime.datetime.now()) + ".png")
     # plt.xscale("log")
     # plt.yscale("log")
+    if save == "true":
+        plt.savefig("plots/dt_v_alt_" + str(datetime.datetime.now()) + ".png")
 
     plt.figure(2)
     plt.title(r"$\delta r_e$ uncertainty as a function of orbital altitude")
@@ -218,17 +211,11 @@ def plot_data(dt_list, dr_list, altitude_list, save="false"):
     plt.plot(altitude_list, dr_median_invlog_fit, label=fr"median invlog fit", color="red")
     plt.ylabel(r"Positional uncertainty in HCNM measurement, $\delta r_e$ (km)")
     plt.xlabel("Orbital altitude (km)")
-<<<<<<< Updated upstream
-    if save == "true":
-        plt.savefig("plots/dr_v_alt_" + str(datetime.datetime.now()) + ".png")
-=======
-    plt.xscale("log")
-    plt.yscale("log")
-    plt.savefig("plots/dr_v_alt_" + str(datetime.datetime.now()) + ".png")
->>>>>>> Stashed changes
     plt.legend()
     # plt.xscale("log")
     # plt.yscale("log")
+    if save == "true":
+        plt.savefig("plots/dr_v_alt_" + str(datetime.datetime.now()) + ".png")
 
     plt.figure(3)
     plt.title("log log dt")
