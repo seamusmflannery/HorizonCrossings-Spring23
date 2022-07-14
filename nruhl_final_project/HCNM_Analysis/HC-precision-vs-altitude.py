@@ -18,14 +18,14 @@ from tcc_slide import CurveComparison, generate_crossings
 N = 5378 # average number of unattenuated counts in data
 bin_size = 1
 comp_range = [0.01, 0.99] # range of transmittance in which to compare the curves
-cb_str = "Mars"
+cb_str = "Venus"
 E_kev = 1.5 # keV
 hc_type = "rising"
 
 
 def main():
-    write_data(500, 5000, 50, 10)
-    plot_read_data(cb_str, 50, 10)
+    write_data(500, 10000, 25, 1000)
+    plot_read_data(cb_str, 25, 1000)
     #write_data(200, 10000, 25, 1000)
     #test()
     return 0
