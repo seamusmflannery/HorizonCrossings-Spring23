@@ -29,7 +29,7 @@ if len(sys.argv) == 2:
 
 
 def main():
-    write_data(300, 10000, 25, 1000)
+    write_data(500, 10000, 25, 1000)
     plot_read_data(cb_str, 25, 1000)
     return 0
 
