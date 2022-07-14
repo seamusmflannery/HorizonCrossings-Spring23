@@ -1,5 +1,6 @@
-# Author: Nathaniel Ruhl
-# This script uses the toy model to determine the effects of orbital altitude on the precision of a horizon crossing
+# Authors: Nathaniel Ruhl + Seamus Flannery
+# This script uses Nate's toy model to determine the effects of orbital altitude on the precision
+# of a horizon crossing, and takes different planets, and a variety of plotting parameters
 from scipy.optimize import curve_fit
 import numpy as np
 import matplotlib
@@ -7,9 +8,10 @@ import matplotlib.pyplot as plt
 import sys
 import datetime
 from math import e
+import sys
+# set path for local modules
 sys.path.append("/homes/smflannery/HorizonCrossings-Summer22/nruhl_final_project")
 sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project")
-
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing
 from tcc_slide import CurveComparison, generate_crossings
@@ -18,9 +20,12 @@ from tcc_slide import CurveComparison, generate_crossings
 N = 5378 # average number of unattenuated counts in data
 bin_size = 1
 comp_range = [0.01, 0.99] # range of transmittance in which to compare the curves
-cb_str = "Mars"
 E_kev = 1.5 # keV
 hc_type = "rising"
+cb_str = "Mars" # planet being plotted
+# allows for command-line arguments to determine planet
+if len(sys.argv) == 2:
+    cb_str = str(sys.argv[1])
 
 
 def main():
