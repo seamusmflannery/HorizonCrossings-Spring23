@@ -141,6 +141,7 @@ def write_data(min_alt, max_alt, alt_interval, how_many):
     altitude_list = np.arange(min_alt, max_alt, alt_interval)
     dt_list = np.zeros((len(altitude_list),how_many), dtype="float")
     dr_list = np.zeros((len(altitude_list),how_many), dtype="float")
+    fail_counter = 0
     for j in range(how_many):
         for i, alt in enumerate(altitude_list):
             sat = AnalyzeCrossing(cb=cb_str, H=alt, E_kev=E_kev)
@@ -148,10 +149,14 @@ def write_data(min_alt, max_alt, alt_interval, how_many):
                 comp_obj = CurveComparison(sat, hc_type, N)
                 dt_list[i][j] = comp_obj.dt_e
                 dr_list[i][j] = comp_obj.dt_e * sat.R_orbit * sat.omega
-            except RuntimeError:
+            except RuntimeError or ValueError:
                 print(str(sat.H) + " failed to fit")
+                fail_counter += 1
+                print("fail counter: " + str(fail_counter))
             print("iteration: " + str(j) + "/" + str(how_many) + " altitude: " + str(alt) +
                   ", " + str(round((j*len(altitude_list)+i+1)*100/(how_many*len(altitude_list)), 2)) + "% complete")
+    total_runs = how_many*len(altitude_list)
+    print("percent failure: " + str(fail_counter/total_runs*100) + "%")
     dt_path = "sample_data/" + cb_str + "_dt_int_" + str(alt_interval) + "_iter_" + str(how_many)
     print(dt_path)
     dr_path = "sample_data/" + cb_str + "_dr_int_" + str(alt_interval) + "_iter_" + str(how_many)
