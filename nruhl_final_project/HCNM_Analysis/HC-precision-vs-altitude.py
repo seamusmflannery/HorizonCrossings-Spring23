@@ -149,8 +149,12 @@ def write_data(min_alt, max_alt, alt_interval, how_many):
                 comp_obj = CurveComparison(sat, hc_type, N)
                 dt_list[i][j] = comp_obj.dt_e
                 dr_list[i][j] = comp_obj.dt_e * sat.R_orbit * sat.omega
-            except RuntimeError or ValueError:
+            except RuntimeError:
                 print(str(sat.H) + " failed to fit")
+                fail_counter += 1
+                print("fail counter: " + str(fail_counter))
+            except ValueError:
+                print(str(sat.H) + " failed on a value error")
                 fail_counter += 1
                 print("fail counter: " + str(fail_counter))
             print("iteration: " + str(j) + "/" + str(how_many) + " altitude: " + str(alt) +
