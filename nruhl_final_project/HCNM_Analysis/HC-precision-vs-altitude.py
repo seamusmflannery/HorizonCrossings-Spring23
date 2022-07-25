@@ -14,7 +14,7 @@ sys.path.append("/homes/smflannery/HorizonCrossings-Summer22/nruhl_final_project
 sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project")
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing
-from tcc_slide import CurveComparison, generate_crossings
+from tcc_slide_double_gaus import CurveComparison, generate_crossings
 
 # Global variables
 N = 5378 # average number of unattenuated counts in data
@@ -22,15 +22,16 @@ bin_size = 1
 comp_range = [0.01, 0.99] # range of transmittance in which to compare the curves
 E_kev = 1.5 # keV
 hc_type = "rising"
-cb_str = "Mars" # planet being plotted
+cb_str = "Earth" # planet being plotted
 # allows for command-line arguments to determine planet
 if len(sys.argv) == 2:
     cb_str = str(sys.argv[1])
 
 
 def main():
-    write_data(500, 10000, 25, 1000)
-    plot_read_data(cb_str, 25, 1000)
+    np.random.seed(3)
+    write_data(300, 10000, 100, 10)
+    plot_read_data(cb_str, 100, 10)
     return 0
 
 
@@ -47,9 +48,9 @@ def test():
     return 0
 
 
-def poly_fit(x, y, degree, printout="false"):  #for polynomial fitting, returns fit data in array
+def poly_fit(x, y, degree, printout=False):  #for polynomial fitting, returns fit data in array
     fit_params = np.polyfit(x, y, degree)
-    if printout == "true" and degree == 3:
+    if printout and degree == 3:
         print(str(fit_params[0]) + " x^3 + " + str(fit_params[1]) + " x^2 + "
               + str(fit_params[2]) + " x + " + str(fit_params[3]))
     fit = np.poly1d(fit_params)
@@ -60,9 +61,10 @@ def poly_fit(x, y, degree, printout="false"):  #for polynomial fitting, returns 
 def sqrt_inverse(x, a):
     return a/np.sqrt(x)
 
-def plot_inverse_root_fit(x, y, printout="false"):
+
+def plot_inverse_root_fit(x, y, printout=False):
     fit_params = curve_fit(sqrt_inverse, x, y)
-    if printout == "true":
+    if printout:
         print("a = " + str(fit_params[0][0]) + "\ncovariance: " + str(fit_params[1]))
     out_array = sqrt_inverse(x, fit_params[0][0])
     return out_array
@@ -71,9 +73,10 @@ def plot_inverse_root_fit(x, y, printout="false"):
 def sqrt_func(x, a, k):
     return (a*np.sqrt(x))+k
 
-def plot_root_fit(x, y, printout="false"):
+
+def plot_root_fit(x, y, printout=False):
     fit_params = curve_fit(sqrt_func, x, y)
-    if printout == "true":
+    if printout:
         print("a = " + str(fit_params[0][0]) + "\nk = " + str(fit_params[0][1]) + "\ncovariance: " + str(fit_params[1]))
     out_array = sqrt_func(x, fit_params[0][0], fit_params[0][1])
     return out_array
@@ -82,9 +85,10 @@ def plot_root_fit(x, y, printout="false"):
 def exponential(x, a, b, k):
     return (a*(e**(b*x)))+k
 
-def plot_exponential_fit(x, y, printout="false"):
+
+def plot_exponential_fit(x, y, printout=False):
     fit_params = curve_fit(exponential, x, y, p0=[0.01, -200, 0])
-    if printout == "true":
+    if printout:
         print("a= " + str(fit_params[0][0]) + "\nb= " + str(fit_params[0][1]) + "\nk= " +str(fit_params[0][2]))
         print("error: " +str(fit_params[1]))
     out_array = exponential(x, fit_params[0][0], fit_params[0][1], fit_params[0][2])
@@ -94,9 +98,10 @@ def plot_exponential_fit(x, y, printout="false"):
 def inverse_log(x, a, b, k):
     return b/(np.log10(a*x))+k
 
-def plot_inverse_log_fit(x, y, printout="false"):
+
+def plot_inverse_log_fit(x, y, printout=False):
     fit_params = curve_fit(inverse_log, x, y, bounds=([0, -np.inf, -np.inf], np.inf))
-    if printout == "true":
+    if printout:
         print("a= " + str(fit_params[0][0]) + "\nb= " + str(fit_params[0][1]) + "\nk= " +str(fit_params[0][2]))
     out_array = inverse_log(x, fit_params[0][0], fit_params[0][1], fit_params[0][2])
     return out_array
@@ -128,7 +133,7 @@ def do_a_bunch_max_min(min_alt, max_alt, alt_interval, how_many):
     return 0
 
 
-def read_data(pathname): #TODO finish this?
+def read_data(pathname):
     return np.load(pathname)
 
 
@@ -139,9 +144,12 @@ def write_data(min_alt, max_alt, alt_interval, how_many):
     for j in range(how_many):
         for i, alt in enumerate(altitude_list):
             sat = AnalyzeCrossing(cb=cb_str, H=alt, E_kev=E_kev)
-            comp_obj = CurveComparison(sat, hc_type, N)
-            dt_list[i][j] = comp_obj.dt_e
-            dr_list[i][j] = comp_obj.dt_e * sat.R_orbit * sat.omega
+            try:
+                comp_obj = CurveComparison(sat, hc_type, N)
+                dt_list[i][j] = comp_obj.dt_e
+                dr_list[i][j] = comp_obj.dt_e * sat.R_orbit * sat.omega
+            except RuntimeError:
+                print(str(sat.H) + " failed to fit")
             print("iteration: " + str(j) + "/" + str(how_many) + " altitude: " + str(alt) +
                   ", " + str(round((j*len(altitude_list)+i+1)*100/(how_many*len(altitude_list)), 2)) + "% complete")
     dt_path = "sample_data/" + cb_str + "_dt_int_" + str(alt_interval) + "_iter_" + str(how_many)
@@ -163,7 +171,7 @@ def plot_read_data(planet, interval, iter):
     plot_data(dt_list, dr_list, altitude_list)
 
 
-def plot_data(dt_list, dr_list, altitude_list, save="false"):
+def plot_data(dt_list, dr_list, altitude_list, save=False):
     dt_sort = np.sort(dt_list)
     dr_sort = np.sort(dr_list)
     dt_median = np.median(dt_sort, axis=1)
@@ -174,19 +182,19 @@ def plot_data(dt_list, dr_list, altitude_list, save="false"):
     dr_33 = np.percentile(dr_list, 33, axis=1)
     # dt fits
     print("dt median inverse log fit: ")
-    dt_median_invlog_fit = plot_inverse_log_fit(altitude_list, dt_median, "true")
+    dt_median_invlog_fit = plot_inverse_log_fit(altitude_list, dt_median, True)
     print("dt 66 inverse log fit: ")
-    dt_66_invlog_fit = plot_inverse_log_fit(altitude_list, dt_66, "true")
+    dt_66_invlog_fit = plot_inverse_log_fit(altitude_list, dt_66, True)
     plt.plot(altitude_list, dt_66_invlog_fit)
     print("dt 33 inverse log fit: ")
-    dt_33_invlog_fit = plot_inverse_log_fit(altitude_list, dt_33, "true")
+    dt_33_invlog_fit = plot_inverse_log_fit(altitude_list, dt_33, True)
     # dr fits
     print("dr median inverse log fit: ")
-    dr_median_invlog_fit = plot_inverse_log_fit(altitude_list, dr_median, "true")
+    dr_median_invlog_fit = plot_inverse_log_fit(altitude_list, dr_median, True)
     print("dr 66 inverse log fit: ")
-    dr_66_invlog_fit = plot_inverse_log_fit(altitude_list, dr_66, "true")
+    dr_66_invlog_fit = plot_inverse_log_fit(altitude_list, dr_66, True)
     print("dr 33 inverse log fit: ")
-    dr_33_invlog_fit = plot_inverse_log_fit(altitude_list, dr_33, "true")
+    dr_33_invlog_fit = plot_inverse_log_fit(altitude_list, dr_33, True)
     # log scaling plots/fits
     dt_log_data = convert_to_log_scales(altitude_list, dt_median)
     fit_y_dt = poly_fit(dt_log_data[0], dt_log_data[1], 1)
@@ -206,7 +214,7 @@ def plot_data(dt_list, dr_list, altitude_list, save="false"):
     plt.legend()
     # plt.xscale("log")
     # plt.yscale("log")
-    if save == "true":
+    if save:
         plt.savefig("plots/dt_v_alt_" + str(datetime.datetime.now()) + ".png")
 
     plt.figure(2)
@@ -219,7 +227,7 @@ def plot_data(dt_list, dr_list, altitude_list, save="false"):
     plt.legend()
     # plt.xscale("log")
     # plt.yscale("log")
-    if save == "true":
+    if save:
         plt.savefig("plots/dr_v_alt_" + str(datetime.datetime.now()) + ".png")
 
     plt.figure(3)
