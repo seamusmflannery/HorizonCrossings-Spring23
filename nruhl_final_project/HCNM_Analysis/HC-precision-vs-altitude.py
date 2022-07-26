@@ -22,7 +22,7 @@ bin_size = 1
 comp_range = [0.01, 0.99] # range of transmittance in which to compare the curves
 E_kev = 1.5 # keV
 hc_type = "rising"
-cb_str = "Earth" # planet being plotted
+cb_str = "Venus" # planet being plotted
 # allows for command-line arguments to determine planet
 if len(sys.argv) == 2:
     cb_str = str(sys.argv[1])
@@ -30,8 +30,8 @@ if len(sys.argv) == 2:
 
 def main():
     np.random.seed(3)
-    write_data(300, 10000, 100, 100)
-    plot_read_data(cb_str, 100, 100)
+    write_data(300, 10000, 100, 10)
+    plot_read_data(cb_str, 100, 10)
     return 0
 
 
@@ -190,6 +190,8 @@ def median_zero_remover(sorted_array): # removes zeroes from a 2-D array, then g
             if sorted_array[i][j] == 0:
                 row_zeroes += 1
         out_array[i] = np.median(sorted_array[i][row_zeroes:])
+        if row_zeroes == len(sorted_array[1]):
+            out_array[i] = 0
     return out_array
 
 
