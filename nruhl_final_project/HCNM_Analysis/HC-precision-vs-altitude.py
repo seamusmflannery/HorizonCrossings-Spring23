@@ -30,7 +30,7 @@ if len(sys.argv) == 2:
 
 def main():
     np.random.seed(3)
-    write_data(300, 10000, 100, 10)
+    # write_data(300, 10000, 100, 10)
     plot_read_data(cb_str, 100, 10)
     return 0
 
@@ -44,6 +44,8 @@ def test():
     # do_a_bunch_max_min(400, 2100, 100, 1)
     # print(poly_fit([1, 2, 3], [1, 4, 9], 2))
     # write_data(300, 10000, 25, 1000)
+    # array = [[0, 0, 3, 5, 7], [1, 2, 3, 4, 5], [0, 0, 3, 4, 6], [0, 0, 0, 0, 1]]
+    # median_zero_remover(array)
     plot_read_data(cb_str, 25, 1000)
     return 0
 
@@ -180,11 +182,24 @@ def plot_read_data(planet, interval, iter):
     plot_data(dt_list, dr_list, altitude_list)
 
 
+def median_zero_remover(sorted_array): # removes zeroes from a 2-D array, then generates a list of the median of the remaining data
+    out_array = np.zeros(len(sorted_array))
+    for i in range(len(sorted_array)):
+        row_zeroes = 0
+        for j in range(len(sorted_array[1])):
+            if sorted_array[i][j] == 0:
+                row_zeroes += 1
+        out_array[i] = np.median(sorted_array[i][row_zeroes:])
+    return out_array
+
+
 def plot_data(dt_list, dr_list, altitude_list, save=False):
     dt_sort = np.sort(dt_list)
     dr_sort = np.sort(dr_list)
-    dt_median = np.median(dt_sort, axis=1)
-    dr_median = np.median(dr_sort, axis=1)
+    # dt_median = np.median(dt_sort, axis=1)
+    # dr_median = np.median(dr_sort, axis=1)
+    dt_median = median_zero_remover(dt_sort)
+    dr_median = median_zero_remover(dr_sort)
     dt_66 = np.percentile(dt_list, 66, axis=1)
     dt_33 = np.percentile(dt_list, 33, axis=1)
     dr_66 = np.percentile(dr_list, 66, axis=1)
@@ -218,8 +233,6 @@ def plot_data(dt_list, dr_list, altitude_list, save=False):
     plt.ylabel(
         fr"Temporal uncertaintainty in HCNM measurement, $\delta t_e$ (sec), {E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
     plt.xlabel("Orbital altitude (km)")
-    plt.xscale("log")
-    plt.yscale("log")
     plt.legend()
     # plt.xscale("log")
     # plt.yscale("log")
