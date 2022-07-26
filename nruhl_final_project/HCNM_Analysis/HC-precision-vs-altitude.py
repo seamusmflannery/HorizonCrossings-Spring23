@@ -22,7 +22,7 @@ bin_size = 1
 comp_range = [0.01, 0.99] # range of transmittance in which to compare the curves
 E_kev = 1.5 # keV
 hc_type = "rising"
-cb_str = "Venus" # planet being plotted
+cb_str = "Mars" # planet being plotted
 # allows for command-line arguments to determine planet
 if len(sys.argv) == 2:
     cb_str = str(sys.argv[1])
