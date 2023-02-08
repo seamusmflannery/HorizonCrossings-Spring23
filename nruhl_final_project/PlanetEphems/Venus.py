@@ -14,6 +14,8 @@ Venus = {
     "mix_O": 0.645,
     "mix_Ar": 0.0,
     "mix_C": 0.32,
+    "mix_H": 0.0,
+    "mix_He": 0.0
 }
 
 if __name__ == '__main__':

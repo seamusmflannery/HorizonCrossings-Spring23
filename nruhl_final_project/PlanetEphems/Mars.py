@@ -13,7 +13,9 @@ Mars = {
     "mix_N": 0.03,
     "mix_O": 0.63,
     "mix_Ar": 0.02,
-    "mix_C": 0.32
+    "mix_C": 0.32,
+    "mix_H": 0.0,
+    "mix_He": 0.0
 }
 
 if __name__ == '__main__':

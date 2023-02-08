@@ -11,10 +11,12 @@ Earth = {
     "scale_height": 8.5,  # km, scale height for density exponential
 
     # Volumetric mix of the atmosphere
-    "mix_N": 0.78,
+    "mix_N": 0.68,  # 0.78
     "mix_O": 0.21,
     "mix_Ar": 0.01,
-    "mix_C": 0.0
+    "mix_C": 0.0,
+    "mix_H": 0.10,  # 0.0
+    "mix_He": 0.0
 }
 
 if __name__ == '__main__':

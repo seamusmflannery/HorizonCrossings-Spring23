@@ -4,8 +4,10 @@
 
 G = 6.6743*10**(-11)     # Nm^2/kg^2, Gravitational constant
 
-# For now the default central body "cb" is Earth, and others can be added in the future (read from a ephemeris file, etc...)
-class Planet():
+
+# For now the default central body "cb" is Earth, and others can be added in the future
+# (read from a ephemeris file, etc...)
+class Planet:
     def __init__(self, cb):
         self.cb = cb
         # Import the Planet dictionary into the local namespace, then access with locals() later
@@ -19,9 +21,12 @@ class Planet():
             from PlanetEphems.P1 import P1
         elif self.cb == "P2":
             from PlanetEphems.P2 import P2
+        elif self.cb =="Jupiter":
+            from PlanetEphems.Jupiter import Jupiter
         else:
             raise RuntimeError("The Planet class is not defined for the user-input")
-        # Default properties of the Planet's atmosphere defined below. Atmospheric mix and scalel height can be can be changed internally with property setter methods
+        # Default properties of the Planet's atmosphere defined below.
+        # Atmospheric mix and scale height can be changed internally with property setter methods
         self.planet = locals()[cb]
 
         self.M = self.planet["Mass"]
@@ -31,6 +36,8 @@ class Planet():
         self._mix_O = self.planet["mix_O"]
         self._mix_Ar = self.planet["mix_Ar"]
         self._mix_C = self.planet["mix_C"]
+        self._mix_H = self.planet["mix_H"]
+        self._mix_He = self.planet["mix_He"]
         self._rho0 = self.planet["surface_density"]
         self._scale_height = self.planet["scale_height"]
 
@@ -65,6 +72,22 @@ class Planet():
     @mix_C.setter
     def mix_C(self, mix_C):
         self._mix_C = mix_C
+
+    @property
+    def mix_H(self):
+        return self._mix_H
+
+    @mix_H.setter
+    def mix_H(self, mix_H):
+        self._mix_H = mix_H
+
+    @property
+    def mix_He(self):
+        return self._mix_He
+
+    @mix_He.setter
+    def mix_He(self, mix_He):
+        self._mix_He = mix_He
 
     @property
     def scale_height(self):

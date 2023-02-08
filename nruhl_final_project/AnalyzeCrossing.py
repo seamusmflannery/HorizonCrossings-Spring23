@@ -11,10 +11,10 @@ from gaussxw import gaussxwab
 class AnalyzeCrossing(Orbit):
 
     def __init__(self, cb, H, E_kev=4.0):
-        Orbit.__init__(self, cb, H) # instansiates both Orbit and Planet classes
+        Orbit.__init__(self, cb, H) # instantiates both Orbit and Planet classes
         self._E_kev = E_kev  # default energy, keV
         self._sigma = BCM.get_total_xsect(
-            self.E_kev, self.mix_N, self.mix_O, self.mix_Ar, self.mix_C)  # default sigma
+            self.E_kev, self.mix_N, self.mix_O, self.mix_Ar, self.mix_C, self.mix_H, self.mix_He)  # default sigma
 
     @property
     def E_kev(self):
@@ -34,7 +34,7 @@ class AnalyzeCrossing(Orbit):
 
     def reset_sigma(self):
         return BCM.get_total_xsect(
-            self.E_kev, self.mix_N, self.mix_O, self.mix_Ar, self.mix_C)
+            self.E_kev, self.mix_N, self.mix_O, self.mix_Ar, self.mix_C, self.mix_H, self.mix_He)
 
     ## Define functions relevant to the 2d geometry below:
 

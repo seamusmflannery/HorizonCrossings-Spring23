@@ -3,12 +3,10 @@
 # of a horizon crossing, and takes different planets, and a variety of plotting parameters
 from scipy.optimize import curve_fit
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
-import sys
 import datetime
-from math import e
 import sys
+import math
 # set path for local modules
 sys.path.append("/homes/smflannery/HorizonCrossings-Summer22/nruhl_final_project")
 sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project")
@@ -16,13 +14,14 @@ sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl
 from AnalyzeCrossing import AnalyzeCrossing
 from tcc_slide_double_gaus import CurveComparison, generate_crossings
 
+
 # Global variables
 N = 5378 # average number of unattenuated counts in data
 bin_size = 1
 comp_range = [0.01, 0.99] # range of transmittance in which to compare the curves
 E_kev = 1.5 # keV
 hc_type = "rising"
-cb_str = "Mars" # planet being plotted
+cb_str = "Earth" # planet being plotted
 # allows for command-line arguments to determine planet
 if len(sys.argv) == 2:
     cb_str = str(sys.argv[1])
@@ -30,7 +29,7 @@ if len(sys.argv) == 2:
 
 def main():
     np.random.seed(3)
-    write_data(300, 10000, 100, 100)
+    write_data(10000, 20000, 100, 100)
     plot_read_data(cb_str, 100, 100)
     return 0
 
@@ -85,7 +84,7 @@ def plot_root_fit(x, y, printout=False):
 
 
 def exponential(x, a, b, k):
-    return (a*(e**(b*x)))+k
+    return (a*(math.e**(b*x)))+k
 
 
 def plot_exponential_fit(x, y, printout=False):
@@ -106,6 +105,34 @@ def plot_inverse_log_fit(x, y, printout=False):
     if printout:
         print("a= " + str(fit_params[0][0]) + "\nb= " + str(fit_params[0][1]) + "\nk= " +str(fit_params[0][2]))
     out_array = inverse_log(x, fit_params[0][0], fit_params[0][1], fit_params[0][2])
+    return out_array
+
+
+def curve_compaction_form(altitude, fit_factor):
+    grav_const = 6.6743 * (10 ** (-20))  # kilometers cubed, inverse kilograms, inverse seconds
+    if cb_str == "Earth":
+        r_planet, m_planet, zero_transmit_tang_alt, one_transmit_tang_alt = [6378, 5.972 * (10 ** 24), 85, 160]
+    elif cb_str == "Mars":
+        r_planet, m_planet, zero_transmit_tang_alt, one_transmit_tang_alt = [3390, 6.39 * (10 ** 23), 100, 200]
+    elif cb_str == "Venus":
+        r_planet, m_planet, zero_transmit_tang_alt, one_transmit_tang_alt = [6051, 4.867 * (10 ** 24), 150, 300]
+    elif cb_str == "Moon":
+        r_planet, m_planet, zero_transmit_tang_alt, one_transmit_tang_alt = [1737, 7.35 * (10 ** 22), 0.0001, 0.00011]
+    r_orbit = r_planet+altitude  # km
+    b = zero_transmit_tang_alt  # km
+    a = one_transmit_tang_alt  # km
+    term1 = ((altitude+r_planet)**(3/2))
+    term2 = np.arccos((r_planet+b) / r_orbit)-np.arccos((r_planet+a) / r_orbit)
+    term3 = np.sqrt(grav_const*m_planet)
+    duration = term1 * term2 / term3 * fit_factor
+    return duration
+
+
+def curve_comp_fit(x, y, printout=False):
+    popt, pcov = curve_fit(curve_compaction_form, x, y)
+    if printout:
+        print("fit factor= " + str(popt[0]))
+    out_array = curve_compaction_form(x, *popt)
     return out_array
 
 
@@ -179,10 +206,14 @@ def plot_read_data(planet, interval, iter):
     dt_list = read_data(dt_name)
     dr_list = read_data(dr_name)
     altitude_list = read_data(alt_name)
+    while np.median(dt_list[0]) == 0:  # handles situations where you generated data too low and need to edit out zeroes
+        dt_list = np.delete(dt_list, 0, axis=0)
+        dr_list = np.delete(dr_list, 0, axis=0)
+        altitude_list = np.delete(altitude_list, 0)
     plot_data(dt_list, dr_list, altitude_list)
 
 
-def median_zero_remover(sorted_array): # removes zeroes from a 2-D array, then generates a list of the median of the remaining data
+def median_zero_remover(sorted_array):  # removes zeroes from a 2-D array, then generates a list of the median of the remaining data
     out_array = np.zeros(len(sorted_array))
     for i in range(len(sorted_array)):
         row_zeroes = 0
@@ -207,20 +238,21 @@ def plot_data(dt_list, dr_list, altitude_list, save=False):
     dr_66 = np.percentile(dr_list, 66, axis=1)
     dr_33 = np.percentile(dr_list, 33, axis=1)
     # dt fits
-    print("dt median inverse log fit: ")
-    dt_median_invlog_fit = plot_inverse_log_fit(altitude_list, dt_median, True)
-    print("dt 66 inverse log fit: ")
-    dt_66_invlog_fit = plot_inverse_log_fit(altitude_list, dt_66, True)
-    plt.plot(altitude_list, dt_66_invlog_fit)
-    print("dt 33 inverse log fit: ")
-    dt_33_invlog_fit = plot_inverse_log_fit(altitude_list, dt_33, True)
+    # print("dt median inverse log fit: ")
+    # dt_median_invlog_fit = plot_inverse_log_fit(altitude_list, dt_median, True)
+    # print("dt 66 inverse log fit: ")
+    # dt_66_invlog_fit = plot_inverse_log_fit(altitude_list, dt_66, True)
+    # plt.plot(altitude_list, dt_66_invlog_fit)
+    # print("dt 33 inverse log fit: ")
+    # dt_33_invlog_fit = plot_inverse_log_fit(altitude_list, dt_33, True)
+    dt_med_comp_fit = curve_comp_fit(altitude_list, dt_median, True)
     # dr fits
     print("dr median inverse log fit: ")
     dr_median_invlog_fit = plot_inverse_log_fit(altitude_list, dr_median, True)
     print("dr 66 inverse log fit: ")
     dr_66_invlog_fit = plot_inverse_log_fit(altitude_list, dr_66, True)
     print("dr 33 inverse log fit: ")
-    dr_33_invlog_fit = plot_inverse_log_fit(altitude_list, dr_33, True)
+    # dr_33_invlog_fit = plot_inverse_log_fit(altitude_list, dr_33, True)
     # log scaling plots/fits
     dt_log_data = convert_to_log_scales(altitude_list, dt_median)
     fit_y_dt = poly_fit(dt_log_data[0], dt_log_data[1], 1)
@@ -229,9 +261,9 @@ def plot_data(dt_list, dr_list, altitude_list, save=False):
 
     plt.figure(1)
     plt.title(r"$\delta t_e$ uncertainty as a function of orbital altitude")
-    plt.fill_between(altitude_list, dt_66_invlog_fit, dt_33_invlog_fit)
+    # plt.fill_between(altitude_list, dt_66_invlog_fit, dt_33_invlog_fit)
     plt.plot(altitude_list, dt_median, label=fr"median", color="orange")
-    plt.plot(altitude_list, dt_median_invlog_fit, label=fr"median invlog fit", color="red")
+    plt.plot(altitude_list, dt_med_comp_fit, label=fr"median invlog fit", color="red")
     plt.ylabel(
         fr"Temporal uncertaintainty in HCNM measurement, $\delta t_e$ (sec), {E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
     plt.xlabel("Orbital altitude (km)")
@@ -243,7 +275,7 @@ def plot_data(dt_list, dr_list, altitude_list, save=False):
 
     plt.figure(2)
     plt.title(r"$\delta r_e$ uncertainty as a function of orbital altitude")
-    plt.fill_between(altitude_list, dr_33_invlog_fit, dr_66_invlog_fit)
+    # plt.fill_between(altitude_list, dr_33_invlog_fit, dr_66_invlog_fit)
     plt.plot(altitude_list, dr_median, label=fr"median", color="orange")
     plt.plot(altitude_list, dr_median_invlog_fit, label=fr"median invlog fit", color="red")
     plt.ylabel(r"Positional uncertainty in HCNM measurement, $\delta r_e$ (km)")
