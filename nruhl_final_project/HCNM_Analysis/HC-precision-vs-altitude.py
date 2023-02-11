@@ -21,7 +21,7 @@ bin_size = 1
 comp_range = [0.01, 0.99] # range of transmittance in which to compare the curves
 E_kev = 1.5 # keV
 hc_type = "rising"
-cb_str = "Earth" # planet being plotted
+cb_str = "Jupiter" # planet being plotted
 # allows for command-line arguments to determine planet
 if len(sys.argv) == 2:
     cb_str = str(sys.argv[1])
@@ -29,8 +29,8 @@ if len(sys.argv) == 2:
 
 def main():
     np.random.seed(3)
-    write_data(10000, 20000, 100, 100)
-    plot_read_data(cb_str, 100, 100)
+    write_data(10000, 20000, 101, 101)
+    plot_read_data(cb_str, 101, 101)
     return 0
 
 
