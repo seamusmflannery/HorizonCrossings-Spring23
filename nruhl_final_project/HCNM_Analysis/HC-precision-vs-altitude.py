@@ -29,7 +29,7 @@ if len(sys.argv) == 2:
 
 def main():
     np.random.seed(3)
-    write_data(10000, 20000, 101, 101)
+    write_data(300, 2000, 101, 101)
     plot_read_data(cb_str, 101, 101)
     return 0
 
