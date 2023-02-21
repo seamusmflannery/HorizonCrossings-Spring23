@@ -1,0 +1,108 @@
+# Author: Seamus Flannery
+# Compare the precision vs altitude plots for two planets
+import numpy as np
+import matplotlib.pyplot as plt
+import datetime
+import sys
+import os
+import math
+# set path for local modules
+sys.path.append("/homes/smflannery/HorizonCrossings-Summer22/nruhl_final_project")
+sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project")
+# import local modules
+from AnalyzeCrossing import AnalyzeCrossing
+from tcc_slide_double_gaus import CurveComparison, generate_crossings
+from HC_precision_vs_altitude import read_data, median_zero_remover, curve_comp_fit, plot_inverse_log_fit, write_data
+N = 5378 # average number of unattenuated counts in data
+bin_size = 1
+comp_range = [0.01, 0.99]  # range of transmittance in which to compare the curves
+E_kev = 1.5 # keV
+hc_type = "rising"
+cb_str = ""
+cwd = os.getcwd()  # Get the current working directory (cwd)
+wd = cwd.replace("HCNM_Analysis", "")
+print(wd)
+
+
+def plot_compare_planets(planet1, planet2, min_alt, max_alt, alt_interval, iterations, read=False):
+    global cb_str
+    cb_str = planet1
+    if not read:
+        write_data(min_alt, max_alt, alt_interval, iterations)
+    cb_str = planet2
+    if not read:
+        write_data(min_alt, max_alt, alt_interval, iterations)
+    suffix = "_int_" + str(alt_interval) + "_iter_" + str(iterations) + ".npy"
+    wd = "/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project/"
+    dt_name1 = wd + "sample_data/" + planet1 + "_dt" + suffix
+    dr_name1 = wd + "sample_data/" + planet1 + "_dr" + suffix
+    alt_name1 = wd + "sample_data/" + planet1 + "_alt" + suffix
+    dt_list1 = read_data(dt_name1)
+    dr_list1 = read_data(dr_name1)
+    altitude_list1 = read_data(alt_name1)
+    while np.median(
+            dt_list1[0]) == 0:  # handles situations where you generated data too low and need to edit out zeroes
+        dt_list1 = np.delete(dt_list1, 0, axis=0)
+        dr_list1 = np.delete(dr_list1, 0, axis=0)
+        altitude_list1 = np.delete(altitude_list1, 0)
+    dt_name2 = wd + "sample_data/" + planet2 + "_dt" + suffix
+    dr_name2 = wd + "sample_data/" + planet2 + "_dr" + suffix
+    alt_name2 = wd + "sample_data/" + planet2 + "_alt" + suffix
+    dt_list2 = read_data(dt_name2)
+    dr_list2 = read_data(dr_name2)
+    altitude_list2 = read_data(alt_name2)
+    while np.median(
+            dt_list1[0]) == 0:  # handles situations where you generated data too low and need to edit out zeroes
+        dt_list2 = np.delete(dt_list2, 0, axis=0)
+        dr_list2 = np.delete(dr_list2, 0, axis=0)
+        altitude_list2 = np.delete(altitude_list2, 0)
+    dt_sort1 = np.sort(dt_list1)
+    dr_sort1 = np.sort(dr_list1)
+    dt_sort2 = np.sort(dt_list2)
+    dr_sort2 = np.sort(dr_list2)
+    dt_median1 = median_zero_remover(dt_sort1)
+    dr_median1 = median_zero_remover(dr_sort1)
+    dt_median2 = median_zero_remover(dt_sort2)
+    dr_median2 = median_zero_remover(dr_sort2)
+    dt_med_comp_fit1 = curve_comp_fit(altitude_list1, dt_median1, True)
+    dt_med_comp_fit2 = curve_comp_fit(altitude_list2, dt_median2, True)
+    dr_median_invlog_fit1 = plot_inverse_log_fit(altitude_list1, dr_median1, True)
+    dr_median_invlog_fit2 = plot_inverse_log_fit(altitude_list2, dr_median2, True)
+    # log scaling plots/fits
+
+    plt.subplot(221)
+    plt.title(r"$\delta t_e$ uncertainty as a function of orbital altitude" + planet1)
+    plt.plot(altitude_list1, dt_median1, label=fr"median", color="orange")
+    plt.plot(altitude_list1, dt_med_comp_fit1, label=fr"median invlog fit", color="red")
+    plt.ylabel(
+        fr"Temporal uncertaintainty in HCNM measurement, $\delta t_e$ (sec), {E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
+    plt.xlabel("Orbital altitude (km)")
+    plt.legend()
+
+    plt.subplot(222)
+    plt.title(r"$\delta t_e$ uncertainty as a function of orbital altitude" + planet2)
+    plt.plot(altitude_list2, dt_median2, label=fr"median", color="orange")
+    plt.plot(altitude_list2, dt_med_comp_fit2, label=fr"median invlog fit", color="red")
+    plt.ylabel(
+        fr"Temporal uncertaintainty in HCNM measurement, $\delta t_e$ (sec), {E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
+    plt.xlabel("Orbital altitude (km)")
+    plt.legend()
+
+    plt.subplot(223)
+    plt.title(r"$\delta r_e$ uncertainty as a function of orbital altitude" + planet1)
+    plt.plot(altitude_list1, dr_median1, label=fr"median", color="orange")
+    plt.plot(altitude_list1, dr_median_invlog_fit1, label=fr"median invlog fit", color="red")
+    plt.ylabel(r"Positional uncertainty in HCNM measurement, $\delta r_e$ (km)")
+    plt.xlabel("Orbital altitude (km)")
+    plt.legend()
+    plt.subplot(224)
+    plt.title(r"$\delta r_e$ uncertainty as a function of orbital altitude" + planet2)
+    plt.plot(altitude_list2, dr_median2, label=fr"median", color="orange")
+    plt.plot(altitude_list2, dr_median_invlog_fit2, label=fr"median invlog fit", color="red")
+    plt.ylabel(r"Positional uncertainty in HCNM measurement, $\delta r_e$ (km)")
+    plt.xlabel("Orbital altitude (km)")
+    plt.legend()
+    plt.show()
+
+
+plot_compare_planets("Earth", "Jupiter", 600, 2000, 100, 100)

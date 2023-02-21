@@ -14,14 +14,13 @@ sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl
 from AnalyzeCrossing import AnalyzeCrossing
 from tcc_slide_double_gaus import CurveComparison, generate_crossings
 
-
 # Global variables
 N = 5378 # average number of unattenuated counts in data
 bin_size = 1
-comp_range = [0.01, 0.99] # range of transmittance in which to compare the curves
+comp_range = [0.01, 0.99]  # range of transmittance in which to compare the curves
 E_kev = 1.5 # keV
 hc_type = "rising"
-cb_str = "Earth" # planet being plotted
+cb_str = "Earth"  # planet being plotted
 # allows for command-line arguments to determine planet
 if len(sys.argv) == 2:
     cb_str = str(sys.argv[1])
@@ -29,8 +28,8 @@ if len(sys.argv) == 2:
 
 def main():
     np.random.seed(3)
-    write_data(300, 2000, 101, 101)
-    plot_read_data(cb_str, 101, 101)
+    write_data(300, 2000, 100, 10)
+    #plot_read_data(cb_str, 100, 100)
     return 0
 
 
@@ -49,7 +48,7 @@ def test():
     return 0
 
 
-def poly_fit(x, y, degree, printout=False):  #for polynomial fitting, returns fit data in array
+def poly_fit(x, y, degree, printout=False):  # for polynomial fitting, returns fit data in array
     fit_params = np.polyfit(x, y, degree)
     if printout and degree == 3:
         print(str(fit_params[0]) + " x^3 + " + str(fit_params[1]) + " x^2 + "
@@ -118,6 +117,8 @@ def curve_compaction_form(altitude, fit_factor):
         r_planet, m_planet, zero_transmit_tang_alt, one_transmit_tang_alt = [6051, 4.867 * (10 ** 24), 150, 300]
     elif cb_str == "Moon":
         r_planet, m_planet, zero_transmit_tang_alt, one_transmit_tang_alt = [1737, 7.35 * (10 ** 22), 0.0001, 0.00011]
+    elif cb_str == "Jupiter":
+        r_planet, m_planet, zero_transmit_tang_alt, one_transmit_tang_alt = [69911, 1.89813 * (10 ** 27), 100, 200]
     r_orbit = r_planet+altitude  # km
     b = zero_transmit_tang_alt  # km
     a = one_transmit_tang_alt  # km
@@ -237,14 +238,6 @@ def plot_data(dt_list, dr_list, altitude_list, save=False):
     dt_33 = np.percentile(dt_list, 33, axis=1)
     dr_66 = np.percentile(dr_list, 66, axis=1)
     dr_33 = np.percentile(dr_list, 33, axis=1)
-    # dt fits
-    # print("dt median inverse log fit: ")
-    # dt_median_invlog_fit = plot_inverse_log_fit(altitude_list, dt_median, True)
-    # print("dt 66 inverse log fit: ")
-    # dt_66_invlog_fit = plot_inverse_log_fit(altitude_list, dt_66, True)
-    # plt.plot(altitude_list, dt_66_invlog_fit)
-    # print("dt 33 inverse log fit: ")
-    # dt_33_invlog_fit = plot_inverse_log_fit(altitude_list, dt_33, True)
     dt_med_comp_fit = curve_comp_fit(altitude_list, dt_median, True)
     # dr fits
     print("dr median inverse log fit: ")

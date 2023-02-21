@@ -18,7 +18,7 @@ class Orbit(Planet):
 
     def radius_to_period(self):
         R_m = self.R_orbit * 10 ** 3   # convert radius to meters
-        T = np.sqrt((4 * np.pi ** 2 * R_m ** 3) /
+        T = np.sqrt((4 * (np.pi ** 2) * (float(R_m) ** 3)) /
                     (G * self.M))   # sec
         return T
     
