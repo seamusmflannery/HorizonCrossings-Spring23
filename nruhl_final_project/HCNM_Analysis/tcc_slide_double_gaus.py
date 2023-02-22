@@ -64,7 +64,7 @@ def gaussian(x, a, b, c, k):
 
 
 class CurveComparison:
-    def __init__(self, sat, hc_type, N0, interp_type="linear"):
+    def __init__(self, sat, hc_type, N0, interp_type="cubic"):
         self.interp_type = interp_type
         self.sat = sat
         self.hc_type = hc_type  # want this to be autonomous

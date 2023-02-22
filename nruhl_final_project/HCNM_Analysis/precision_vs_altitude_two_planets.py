@@ -64,11 +64,10 @@ def plot_compare_planets(planet1, planet2, min_alt, max_alt, alt_interval, itera
     dr_median1 = median_zero_remover(dr_sort1)
     dt_median2 = median_zero_remover(dt_sort2)
     dr_median2 = median_zero_remover(dr_sort2)
-    dt_med_comp_fit1 = curve_comp_fit(altitude_list1, dt_median1, True)
-    dt_med_comp_fit2 = curve_comp_fit(altitude_list2, dt_median2, True)
-    dr_median_invlog_fit1 = plot_inverse_log_fit(altitude_list1, dr_median1, True)
-    dr_median_invlog_fit2 = plot_inverse_log_fit(altitude_list2, dr_median2, True)
-    # log scaling plots/fits
+    dt_med_comp_fit1 = curve_comp_fit(altitude_list1, dt_median1, True)  # TODO clarify whats happening with this fit
+    dt_med_comp_fit2 = curve_comp_fit(altitude_list2, dt_median2, True)  # TODO clarify whats happening with this fit
+    dr_median_invlog_fit1 = curve_comp_fit(altitude_list1, dr_median1, True)  # TODO clarify whats happening with this fit
+    dr_median_invlog_fit2 = curve_comp_fit(altitude_list2, dr_median2, True)  # TODO clarify whats happening with this fit
 
     plt.subplot(221)
     plt.title(r"$\delta t_e$ uncertainty as a function of orbital altitude" + planet1)
@@ -139,5 +138,5 @@ def write_data(min_alt, max_alt, alt_interval, how_many):
     np.save(alt_path, altitude_list)
 
 
-# plot_compare_planets("Earth", "Jupiter", 600, 2000, 100, 10, read=True)  # stable
-plot_compare_planets("Earth", "Jupiter", 600, 2500, 100, 100)  # TODO stablize on Maria
+plot_compare_planets("Earth", "Jupiter", 600, 2500, 100, 100, read=True)  # stable
+# plot_compare_planets("Earth", "Jupiter", 600, 2500, 100, 100)  # TODO stabilize on Maria
