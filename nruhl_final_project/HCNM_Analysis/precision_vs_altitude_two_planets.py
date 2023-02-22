@@ -133,10 +133,11 @@ def write_data(min_alt, max_alt, alt_interval, how_many):
     print(dt_path)
     dr_path = wd + "sample_data/" + cb_str + "_dr_int_" + str(alt_interval) + "_iter_" + str(how_many)
     alt_path = wd + "sample_data/" + cb_str + "_alt_int_" + str(alt_interval) + "_iter_" + str(how_many)
+    print("save path:: " + dt_path)
     np.save(dt_path, dt_list)
     np.save(dr_path, dr_list)
     np.save(alt_path, altitude_list)
 
 
 # plot_compare_planets("Earth", "Jupiter", 600, 2000, 100, 10, read=True)  # stable
-plot_compare_planets("Earth", "Jupiter", 600, 2000, 100, 100)  # TODO stable on my laptop.
+plot_compare_planets("Earth", "Jupiter", 600, 2000, 100, 10)  # TODO stable on my laptop.
