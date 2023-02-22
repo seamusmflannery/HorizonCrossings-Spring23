@@ -138,5 +138,5 @@ def write_data(min_alt, max_alt, alt_interval, how_many):
     np.save(alt_path, altitude_list)
 
 
-plot_compare_planets("Earth", "Jupiter", 600, 2500, 100, 100, read=True)  # stable
-# plot_compare_planets("Earth", "Jupiter", 600, 2500, 100, 100)  # TODO stabilize on Maria
+# plot_compare_planets("Earth", "Jupiter", 600, 2500, 100, 100, read=True)  # stable
+plot_compare_planets("Earth", "Jupiter", 600, 2500, 100, 100)  # TODO stabilize on Maria
