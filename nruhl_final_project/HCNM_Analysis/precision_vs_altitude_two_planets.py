@@ -140,4 +140,4 @@ def write_data(min_alt, max_alt, alt_interval, how_many):
 
 
 # plot_compare_planets("Earth", "Jupiter", 600, 2000, 100, 10, read=True)  # stable
-plot_compare_planets("Earth", "Jupiter", 600, 2000, 100, 10)  # TODO stable on my laptop.
+plot_compare_planets("Earth", "Jupiter", 600, 2000, 100, 100)  # TODO stable on my laptop.
