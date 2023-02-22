@@ -33,7 +33,7 @@ def plot_compare_planets(planet1, planet2, min_alt, max_alt, alt_interval, itera
     if not read:
         write_data(min_alt, max_alt, alt_interval, iterations)
     suffix = "_int_" + str(alt_interval) + "_iter_" + str(iterations) + ".npy"
-    wd = "/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project/"
+    # wd = "/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project/"
     dt_name1 = wd + "sample_data/" + planet1 + "_dt" + suffix
     dr_name1 = wd + "sample_data/" + planet1 + "_dr" + suffix
     alt_name1 = wd + "sample_data/" + planet1 + "_alt" + suffix
@@ -105,4 +105,38 @@ def plot_compare_planets(planet1, planet2, min_alt, max_alt, alt_interval, itera
     plt.show()
 
 
-plot_compare_planets("Earth", "Jupiter", 600, 2000, 100, 100)
+def write_data(min_alt, max_alt, alt_interval, how_many):
+    altitude_list = np.arange(min_alt, max_alt, alt_interval)
+    dt_list = np.zeros((len(altitude_list),how_many), dtype="float")
+    dr_list = np.zeros((len(altitude_list),how_many), dtype="float")
+    fail_counter = 0
+    for j in range(how_many):
+        for i, alt in enumerate(altitude_list):
+            sat = AnalyzeCrossing(cb=cb_str, H=alt, E_kev=E_kev)
+            try:
+                comp_obj = CurveComparison(sat, hc_type, N)
+                dt_list[i][j] = comp_obj.dt_e
+                dr_list[i][j] = comp_obj.dt_e * sat.R_orbit * sat.omega
+            except RuntimeError:
+                print(str(sat.H) + " failed to fit")
+                fail_counter += 1
+                print("fail counter: " + str(fail_counter))
+            except ValueError:
+                print(str(sat.H) + " failed on a value error")
+                fail_counter += 1
+                print("fail counter: " + str(fail_counter))
+            print("iteration: " + str(j) + "/" + str(how_many) + " altitude: " + str(alt) +
+                  ", " + str(round((j*len(altitude_list)+i+1)*100/(how_many*len(altitude_list)), 2)) + "% complete")
+    total_runs = how_many*len(altitude_list)
+    print("percent failure: " + str(fail_counter/total_runs*100) + "%")
+    dt_path = wd + "sample_data/" + cb_str + "_dt_int_" + str(alt_interval) + "_iter_" + str(how_many)
+    print(dt_path)
+    dr_path = wd + "sample_data/" + cb_str + "_dr_int_" + str(alt_interval) + "_iter_" + str(how_many)
+    alt_path = wd + "sample_data/" + cb_str + "_alt_int_" + str(alt_interval) + "_iter_" + str(how_many)
+    np.save(dt_path, dt_list)
+    np.save(dr_path, dr_list)
+    np.save(alt_path, altitude_list)
+
+
+# plot_compare_planets("Earth", "Jupiter", 600, 2000, 100, 10, read=True)  # stable
+plot_compare_planets("Earth", "Jupiter", 600, 2000, 100, 100)  # TODO stable on my laptop.
