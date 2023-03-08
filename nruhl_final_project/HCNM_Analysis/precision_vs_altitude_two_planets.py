@@ -103,6 +103,12 @@ def plot_compare_planets(planet1, planet2, min_alt, max_alt, alt_interval, itera
 
 
 def write_data(min_alt, max_alt, alt_interval, how_many):
+    print(wd)
+    dt_path = wd + "sample_data/" + cb_str + "_dt_int_" + str(alt_interval) + "_iter_" + str(how_many)
+    print(dt_path)
+    dr_path = wd + "sample_data/" + cb_str + "_dr_int_" + str(alt_interval) + "_iter_" + str(how_many)
+    alt_path = wd + "sample_data/" + cb_str + "_alt_int_" + str(alt_interval) + "_iter_" + str(how_many)
+    print("save path:: " + dt_path)
     altitude_list = np.arange(min_alt, max_alt, alt_interval)
     dt_list = np.zeros((len(altitude_list),how_many), dtype="float")
     dr_list = np.zeros((len(altitude_list),how_many), dtype="float")
@@ -126,11 +132,6 @@ def write_data(min_alt, max_alt, alt_interval, how_many):
                   ", " + str(round((j*len(altitude_list)+i+1)*100/(how_many*len(altitude_list)), 2)) + "% complete")
     total_runs = how_many*len(altitude_list)
     print("percent failure: " + str(fail_counter/total_runs*100) + "%")
-    dt_path = wd + "sample_data/" + cb_str + "_dt_int_" + str(alt_interval) + "_iter_" + str(how_many)
-    print(dt_path)
-    dr_path = wd + "sample_data/" + cb_str + "_dr_int_" + str(alt_interval) + "_iter_" + str(how_many)
-    alt_path = wd + "sample_data/" + cb_str + "_alt_int_" + str(alt_interval) + "_iter_" + str(how_many)
-    print("save path:: " + dt_path)
     np.save(dt_path, dt_list)
     np.save(dr_path, dr_list)
     np.save(alt_path, altitude_list)
@@ -138,3 +139,4 @@ def write_data(min_alt, max_alt, alt_interval, how_many):
 
 # plot_compare_planets("Earth", "Jupiter", 600, 10000, 100, 100, read=True)  # stable
 plot_compare_planets("Jupiter", "Earth", 600, 10000, 200, 300)  # TODO stabilize on Maria
+print(wd)
