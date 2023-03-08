@@ -125,5 +125,5 @@ def plot_variable_data(planet, interval, iter):
 
 
 cb_str_list = ["Jupiter", "Jupiter1", "Jupiter2", "Jupiter3"]
-variable_write(cb_str_list, 300, 1000, 100, 100)
-plot_variable_data("Jupiter", 100, 100)
+variable_write(cb_str_list, 600, 10000, 200, 100)
+plot_variable_data("Jupiter", 200, 100)
