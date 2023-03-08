@@ -19,6 +19,8 @@ hc_type = "rising"
 cb_str = ""
 cwd = os.getcwd()  # Get the current working directory (cwd)
 wd = cwd.replace("HCNM_Analysis", "")
+if wd[-1] != "/":
+    wd += "/"
 print(wd)
 
 
