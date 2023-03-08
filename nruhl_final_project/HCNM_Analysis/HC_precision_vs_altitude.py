@@ -28,7 +28,11 @@ if len(sys.argv) == 2:
 
 def main():
     np.random.seed(3)
-    write_data(300, 2000, 100, 10)
+    global cb_str
+    cb_str = "Earth"
+    write_data(600, 10000, 200, 200)
+    cb_str = "Jupiter"
+    write_data( 600, 10000, 200, 200)
     #plot_read_data(cb_str, 100, 100)
     return 0
 
