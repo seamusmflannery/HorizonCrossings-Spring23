@@ -32,7 +32,7 @@ def main():
     cb_str = "Earth"
     write_data(600, 10000, 200, 200)
     cb_str = "Jupiter"
-    write_data( 600, 10000, 200, 200)
+    write_data(600, 10000, 200, 200)
     #plot_read_data(cb_str, 100, 100)
     return 0
 
