@@ -2,7 +2,7 @@
 # Numbers from NASA Jupiter Fact Sheet: https://nssdc.gsfc.nasa.gov/planetary/factsheet/jupiterfact.html
 # and
 
-Jupiter = {
+Jupiter3 = {
     "Mass": 1.89813 * 10 ** 27,  # kg
     "Radius": 69911,   # km, equatorial radius
     "surface_gravity": 24.79,  # m/s^2, acceleration due to gravity at surface level

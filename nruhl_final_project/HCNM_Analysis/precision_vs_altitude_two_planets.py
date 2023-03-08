@@ -2,10 +2,8 @@
 # Compare the precision vs altitude plots for two planets
 import numpy as np
 import matplotlib.pyplot as plt
-import datetime
 import sys
 import os
-import math
 # set path for local modules
 sys.path.append("/homes/smflannery/HorizonCrossings-Summer22/nruhl_final_project")
 sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project")
@@ -138,5 +136,5 @@ def write_data(min_alt, max_alt, alt_interval, how_many):
     np.save(alt_path, altitude_list)
 
 
-# plot_compare_planets("Earth", "Jupiter", 600, 2500, 100, 100, read=True)  # stable
+# plot_compare_planets("Earth", "Jupiter", 600, 10000, 100, 100, read=True)  # stable
 plot_compare_planets("Earth", "Jupiter", 600, 10000, 200, 300)  # TODO stabilize on Maria

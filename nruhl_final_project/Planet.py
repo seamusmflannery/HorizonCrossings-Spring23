@@ -21,8 +21,14 @@ class Planet:
             from PlanetEphems.P1 import P1
         elif self.cb == "P2":
             from PlanetEphems.P2 import P2
-        elif self.cb =="Jupiter":
+        elif self.cb == "Jupiter":
             from PlanetEphems.Jupiter import Jupiter
+        elif self.cb == "Jupiter1":
+            from PlanetEphems.Jupiter1 import Jupiter1
+        elif self.cb == "Jupiter2":
+            from PlanetEphems.Jupiter2 import Jupiter2
+        elif self.cb == "Jupiter3":
+            from PlanetEphems.Jupiter3 import Jupiter3
         else:
             raise RuntimeError("The Planet class is not defined for the user-input")
         # Default properties of the Planet's atmosphere defined below.
