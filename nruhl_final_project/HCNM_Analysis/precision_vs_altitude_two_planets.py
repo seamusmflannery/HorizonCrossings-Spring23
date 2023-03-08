@@ -137,4 +137,4 @@ def write_data(min_alt, max_alt, alt_interval, how_many):
 
 
 # plot_compare_planets("Earth", "Jupiter", 600, 10000, 100, 100, read=True)  # stable
-plot_compare_planets("Earth", "Jupiter", 600, 10000, 200, 300)  # TODO stabilize on Maria
+plot_compare_planets("Jupiter", "Earth", 600, 10000, 200, 300)  # TODO stabilize on Maria
