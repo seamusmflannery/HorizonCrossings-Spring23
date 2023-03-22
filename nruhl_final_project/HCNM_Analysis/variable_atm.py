@@ -11,9 +11,8 @@ sys.path.append("/homes/smflannery/HorizonCrossings-Summer22/nruhl_final_project
 sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project")
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing
-from tcc_slide_double_gaus import CurveComparison, generate_crossings
-from HC_precision_vs_altitude import read_data, median_zero_remover, curve_comp_fit, plot_inverse_log_fit, write_data, \
-    plot_data
+from tcc_slide_double_gaus import CurveComparison
+from HC_precision_vs_altitude import read_data, median_zero_and_outlier_remover
 
 N = 5378  # average number of unattenuated counts in data
 bin_size = 1
@@ -46,7 +45,8 @@ def variable_write(cb_str_list, min_alt, max_alt, alt_interval, how_many):
             rand_list = random_iterate(cb_str_list)  # rotates through the planet ephem files, once each, random order
             for k, cb in enumerate(rand_list):
                 cb_str = rand_list[k]
-                sat = AnalyzeCrossing(cb=cb_str, H=alt, E_kev=E_kev)
+                rand_alt = np.random.choice(np.arange(alt, alt+alt_interval, 1))
+                sat = AnalyzeCrossing(cb=cb_str, H=rand_alt, E_kev=E_kev)
                 current_runs += 1
                 try:
                     comp_obj = CurveComparison(sat, hc_type, N)
@@ -60,7 +60,7 @@ def variable_write(cb_str_list, min_alt, max_alt, alt_interval, how_many):
                     print(str(sat.H) + " failed on a value error")
                     fail_counter += 1
                     print("fail counter: " + str(fail_counter))
-                print("iteration: " + str(j) + "/" + str(how_many) + " altitude: " + str(alt) +
+                print("iteration: " + str(j) + "/" + str(how_many) + " altitude: " + str(rand_alt) +
                       ", " + str(
                         round(current_runs * 100 / total_runs, 2)) + "% complete")
     print("percent failure: " + str(fail_counter / total_runs * 100) + "%")
@@ -71,9 +71,11 @@ def variable_write(cb_str_list, min_alt, max_alt, alt_interval, how_many):
     np.save(dt_path, dt_list)
     np.save(dr_path, dr_list)
     np.save(alt_path, altitude_list)
+    plt.show()
 
 
 def plot_variable_data(planet, interval, iter):
+    global cb_str_list
     suffix = "_int_" + str(interval) + "_iter_" + str(iter) + ".npy"
     dt_name = wd + "sample_data/variable_" + planet + "_dt" + suffix
     dr_name = wd + "sample_data/variable_" + planet + "_dr" + suffix
@@ -81,49 +83,40 @@ def plot_variable_data(planet, interval, iter):
     dt_list = read_data(dt_name)
     dr_list = read_data(dr_name)
     altitude_list = read_data(alt_name)
-    while np.median(dt_list[0]) == 0:  # handles situations where you generated data too low and need to edit out zeroes
-        dt_list = np.delete(dt_list, 0, axis=0)
-        dr_list = np.delete(dr_list, 0, axis=0)
-        altitude_list = np.delete(altitude_list, 0)
     dt_sort = np.sort(dt_list)
     dr_sort = np.sort(dr_list)
-    dt_median = median_zero_remover(dt_sort)
-    dr_median = median_zero_remover(dr_sort)
-    dt_med_comp_fit = curve_comp_fit(altitude_list, dt_median, True)
-    # dr fits
-    # print("dr median inverse log fit: ")
-    # dr_median_invlog_fit = plot_inverse_log_fit(altitude_list, dr_median, True)
-    # print("dr 66 inverse log fit: ")
-    # dr_66_invlog_fit = plot_inverse_log_fit(altitude_list, dr_66, True)
-    # print("dr 33 inverse log fit: ")
-    # dr_33_invlog_fit = plot_inverse_log_fit(altitude_list, dr_33, True)
-    # log scaling plots/fits
-    # dt_log_data = convert_to_log_scales(altitude_list, dt_median)
-    # fit_y_dt = poly_fit(dt_log_data[0], dt_log_data[1], 1)
-    # dr_log_data = convert_to_log_scales(altitude_list, dr_median)
-    # fit_y_dr = poly_fit(dr_log_data[0], dr_log_data[1], 1)
+    dt_median = median_zero_and_outlier_remover(dt_sort)
+    dr_median = median_zero_and_outlier_remover(dr_sort)
+    # plt.plot(altitude_list, dt_sort)
+    # plt.show()
 
-    plt.figure(1)
-    plt.title(r"$\delta t_e$ uncertainty as a function of orbital altitude")
+    plt.subplot(211)
+    plt.title(r"$\delta t$ uncertainty as a function of orbital altitude, " + str(len(cb_str_list)) + " atmospheric composition(s)")
     # plt.fill_between(altitude_list, dt_66_invlog_fit, dt_33_invlog_fit)
-    plt.plot(altitude_list, dt_median, label=fr"median", color="orange")
-    plt.plot(altitude_list, dt_med_comp_fit, label=fr"median invlog fit", color="red")
+    plt.plot(altitude_list, dt_median, label=fr"median, " + str(iter*4) + " iterations", color="red")
+    # plt.plot(altitude_list, dt_med_comp_fit, label=fr"median invlog fit", color="red")
     plt.ylabel(
-        fr"Temporal uncertaintainty in HCNM measurement, $\delta t_e$ (sec), {E_kev} keV {cb_str} {hc_type} crossing, $N_0$ = {N}")
+        fr"$\delta t$ (sec)")
     plt.xlabel("Orbital altitude (km)")
     plt.legend()
 
-    plt.figure(2)
-    plt.title(r"$\delta r_e$ uncertainty as a function of orbital altitude")
+    plt.subplot(212)
+    plt.title(r"$\delta r$ uncertainty as a function of orbital altitude, " + str(len(cb_str_list)) + " atmospheric composition(s)")
     # plt.fill_between(altitude_list, dr_33_invlog_fit, dr_66_invlog_fit)
-    plt.plot(altitude_list, dr_median, label=fr"median", color="orange")
+    plt.plot(altitude_list, dr_median, label=fr"median, " + str(iter*4) + " iterations", color="red")
     # plt.plot(altitude_list, dr_median_invlog_fit, label=fr"median invlog fit", color="red")
-    plt.ylabel(r"Positional uncertainty in HCNM measurement, $\delta r_e$ (km)")
+    plt.ylabel(r"$\delta r$ (km)")
     plt.xlabel("Orbital altitude (km)")
     plt.legend()
+    plt.tight_layout()
     plt.show()
 
 
 cb_str_list = ["Jupiter", "Jupiter1", "Jupiter2", "Jupiter3"]
-variable_write(cb_str_list, 600, 10000, 200, 100)
+# variable_write(cb_str_list, 600, 10000, 200, 100)
 plot_variable_data("Jupiter", 200, 100)
+cb_str_list = ["Jupiter"]
+# variable_write(cb_str_list, 600, 10000, 200, 400)
+plot_variable_data("Jupiter", 200, 400)
+# variable_write(cb_str_list, 600, 10000, 200, 12)
+# plot_variable_data("Jupiter", 200, 12)

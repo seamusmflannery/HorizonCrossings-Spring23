@@ -231,6 +231,27 @@ def median_zero_remover(sorted_array):  # removes zeroes from a 2-D array, then 
     return out_array
 
 
+# removes zeroes from a 2-D array, then generates a list of the median of the remaining data
+def median_zero_and_outlier_remover(sorted_array):
+    out_array = np.zeros([len(sorted_array)])
+    for i in range(len(sorted_array)):
+        row_zeroes = 0
+        for j in range(len(sorted_array[1])):
+            if sorted_array[i][j] == 0:
+                row_zeroes += 1
+        row_remaining = sorted_array[i][row_zeroes:]
+        if row_zeroes == len(sorted_array[1]):
+            row_remaining = 0
+        row_mean = np.mean(row_remaining)
+        row_std = np.std(row_remaining)
+        non_outliers = []
+        for j, val in enumerate(row_remaining):
+            if abs((val - row_mean)/row_std) < 3:
+                non_outliers.append(val)
+        out_array[i] = np.median(non_outliers)
+    return out_array
+
+
 def plot_data(dt_list, dr_list, altitude_list, save=False):
     dt_sort = np.sort(dt_list)
     dr_sort = np.sort(dr_list)
