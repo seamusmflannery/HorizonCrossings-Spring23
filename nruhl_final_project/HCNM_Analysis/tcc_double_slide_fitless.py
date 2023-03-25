@@ -25,12 +25,13 @@ H = 2200  # km, orbital altitude
 bin_size = 1.0
 # range of transmittance in which to compare the curves
 comp_range = [0.01, 0.99]
-animate = False  # animates sliding and analysis process for education and debugging
+animate = True  # animates sliding and analysis process for education and debugging
 plot_toggle = True
 animate_res = 8  # fractional number of points to be rendered in animation
 # Parameters involved in generating hc data
 std = 0.05  # standard deviation of normally-distributed noise
 np.random.seed(3)
+initial_precision = 0.01
 
 
 # This function generates the horizon crossing times and transmittance arrays for both model and data
@@ -60,28 +61,23 @@ def generate_crossings(sat, hc_type):
 
 
 # This class executes the CurveComparison
-def gaussian(x, a, b, c, k):
-    return k + a * np.exp(-((x - b) ** 2) / (2 * c ** 2))
-
-
 class CurveComparison:
     def __init__(self, sat, hc_type, N0, interp_type="linear"):
         self.interp_type = interp_type
         self.sat = sat
         self.hc_type = hc_type  # want this to be autonomous
         self.N0 = N0
-        self.time_model, self.transmit_model, self.time_data, self.transmit_data = generate_crossings(self.sat, self.hc_type)
+        self.time_model, self.transmit_model, self.time_data, self.transmit_data = generate_crossings(self.sat,
+                                                                                                      self.hc_type)
         # First step to identify t0
         self.t0_1 = self.locate_t0_step1()
         self.t0_1_index = np.where(self.time_data >= self.t0_1)[0][0]
         # Locate t0_2 and narrow range, calculate chisq for narrowed range
         self.t0_2, self.t0_guess_list, self.chisq_list = self.locate_t0_step2()
-        # Locate t0_3 and narrow range further using gaussian fit on chisq, returns refined guess for minimum
-        self.t0_3, self.dt_2, self.chisq_upper_t2, self.chisq_lower_t2 = self.analyze_chisq()
+        # centered around t0_2, narrows range further to +3 chisq,
+        self.refined_search_range = self.refine_search_range()
         # Repeat step 2 on narrower range, calculate chisq for narrower range, higher resolution
-        self.t0_4, self.t0_range_list, self.chisq_list_fine = self.locate_t0_fine()
-        # Fine grain gaussian fit, final t0_e, measures chisq width for uncertainty
-        self.t0_e, self.dt_e = self.analyze_chisq_fine()
+        self.t0_e, self.t0_range_list, self.chisq_list_fine, self.dt_e = self.locate_t0_fine()
 
     # This function is used to identify the model time (from t0)
     def time_vs_transmit_model(self, transmit_approx_50):
@@ -109,8 +105,6 @@ class CurveComparison:
 
     # This function slides the model past the data at time intervals of desired_precision and calculates chi_sq
     def locate_t0_step2(self):
-        desired_precision = 0.01
-
         # Define the data points in the full crossing time range
         if self.hc_type == "setting":
             time_crossing_data = self.time_data[self.t0_1_index - len(self.time_model):self.t0_1_index]
@@ -126,9 +120,9 @@ class CurveComparison:
         weight_range = np.where((self.transmit_model >= comp_range[0]) & (self.transmit_model <= comp_range[1]))[0]
         side_range = 1 / 10 * len(weight_range)
         if self.sat.cb != "Earth":
-            t_start_list = np.arange(self.t0_1 - 2, self.t0_1 + 2, desired_precision)
+            t_start_list = np.arange(self.t0_1 - 2, self.t0_1 + 2, initial_precision)
         else:
-            t_start_list = np.arange(self.t0_1 - side_range, self.t0_1 + side_range, desired_precision)
+            t_start_list = np.arange(self.t0_1 - side_range, self.t0_1 + side_range, initial_precision)
         if animate:
             plt.figure(1)
             fig, ax = plt.subplots(1, 2)
@@ -171,89 +165,37 @@ class CurveComparison:
                 plt.pause(0.01)
 
         t0_2 = t_start_list[np.argmin(chisq_list)]
-        # np.save("gaussian_test_data_dim.npy", [t_start_list, chisq_list])
         return t0_2, t_start_list, chisq_list
 
-    # Methods to calculate the chisq+1 error
-    def analyze_chisq(self):
-        popt = self.gaussian_fit(self.t0_2, self.t0_guess_list, self.chisq_list)
-        chisq_func = lambda t: gaussian(t, *popt)
-        t0_3 = float(least_squares(chisq_func, x0=self.t0_2).x)
-        if animate:
-            print("min chisq step 2:" + str(t0_3))
-        plus_1 = lambda t: chisq_func(t) - (chisq_func(t0_3) + 1)
-        # Determine chisq +1 above and below min
-        upper_t0 = root_scalar(plus_1, method="secant", x0=t0_3 + 0.01, x1=t0_3 + 0.03).root
-        lower_t0 = root_scalar(plus_1, method="secant", x0=t0_3 - 0.01, x1=t0_3 - 0.03).root
-        if lower_t0 > upper_t0:
-            temp = lower_t0
-            lower_t0 = upper_t0
-            upper_t0 = temp
-        # return the larger of the two differences for the chisq error
-        if chisq_func(upper_t0) > chisq_func(lower_t0):
-            chisq_error = abs(upper_t0 - t0_3)
-        else:
-            chisq_error = abs(lower_t0 - t0_3)
+    # Return the range of +3 chisq around the lowest chisq value for a later, higher granularity search
+    def refine_search_range(self):
+        minchisq = min(self.chisq_list)
+        min_index = np.argmin(self.chisq_list)
+        left_half = self.chisq_list[:min_index]  # data to the left of the min
+        right_half = self.chisq_list[min_index:]  # data to the right of the min
+        # finds left bound on +3 chisq
+        newmin_index = max(np.where(left_half > minchisq + 3)[0])
+        # finds right bound on +3 chisq - convoluted but takes the right half of the data, finds where its bigger than
+        # plus three from minchisq, finds the exact value of the chisq there in order to be able to find that value in
+        # the full chisq list (we don't want the right half array indexing)
+        newmax_index = np.where(self.chisq_list == right_half[min(np.where(right_half > minchisq + 3)[0])])[0][0]
+        refined_search_range = np.array(self.t0_guess_list[newmin_index:newmax_index])
         if plot_toggle:
             smoothrange = np.linspace(self.t0_guess_list[0], self.t0_guess_list[len(self.t0_guess_list) - 1], 1000)
-            plt.figure(4)
-            plus_one_line = np.full(1000, chisq_func(t0_3) + 1)
-            plus_two_line = np.full(1000, chisq_func(t0_3) + 2)
-            plt.title("gaussian fit check, uncertainty: " + str(chisq_error))
-            plt.plot(smoothrange, gaussian(smoothrange, *popt), color="red", label="gaussian")
+            plt.figure(3)
+            plus_one_line = np.full(1000, minchisq + 1)
+            plus_three_line = np.full(1000, minchisq + 3)
             plt.plot(self.t0_guess_list, self.chisq_list, "bo", markersize="2", label="chisq data")
             plt.plot(smoothrange, plus_one_line, color="green", label="chisq minimum +1")
-            plt.plot(smoothrange, plus_two_line, color="green", label="chisq minimum +2")
+            plt.plot(smoothrange, plus_three_line, color="green", label="chisq minimum +3")
             plt.legend()
             plt.show()
-            print("+1 Root found: " + str(upper_t0))
-            print("+1 Root found: " + str(lower_t0))
-        plus_2 = lambda t: chisq_func(t) - (chisq_func(t0_3) + 2)
-        # Determine chisq +2 before and after chisq minimum
-        upper_t0_2 = root_scalar(plus_2, method="secant", x0=t0_3 + 0.01, x1=t0_3 + 0.03).root
-        lower_t0_2 = root_scalar(plus_2, method="secant", x0=t0_3 - 0.01, x1=t0_3 - 0.03).root
-        if lower_t0_2 > upper_t0_2:
-            temp = lower_t0_2
-            lower_t0_2 = upper_t0_2
-            upper_t0_2 = temp
-        if animate:
-            print("+2 Root found: " + str(upper_t0_2))
-            print("+2 root y: " + str(chisq_func(upper_t0_2)))
-            print("+2 Root found: " + str(lower_t0_2))
-            print("+2 root y: " + str(chisq_func(lower_t0_2)))
-
-        return t0_3, chisq_error, upper_t0_2, lower_t0_2
-
-    # def chisq_vs_time(self, t0, range_list, chisq_list):
-    #     func = interp1d(range_list, chisq_list, kind='cubic', fill_value="extrapolate")
-    #     return func(t0)
-
-    def gaussian_fit(self, t_min_guess, range_list, chisq_list):
-        t_min_guess_index = np.where(range_list >= t_min_guess)[0][0]
-        start = t_min_guess_index - int(len(range_list) / 25)
-        end = t_min_guess_index + int(len(range_list) / 25)
-        low_b = t_min_guess - len(range_list) / 75
-        # low_b = range_list[t_min_guess_index - 20]
-        upper_b = t_min_guess + len(range_list) / 75
-        # upper_b = range_list[t_min_guess_index + 20]
-        chisq_min_guess = chisq_list[t_min_guess_index]
-        low_k = chisq_min_guess
-        upper_k = 1.5 * chisq_min_guess
-        low_bounds = [-500, low_b, 0.1, low_k]
-        upper_bounds = [0, upper_b, 1, upper_k]
-        popt, pcov = curve_fit(gaussian, range_list[start:end], chisq_list[start:end], bounds=(low_bounds, upper_bounds))
-        if animate:
-            print("a: " + str(popt[0]) + ", b: " + str(popt[1]) + ", c: " + str(popt[2]) + ", k: " + str(popt[3]))
-            print("lower fit bounds: ")
-            print(low_bounds)
-            print("upper fit bounds")
-            print(upper_bounds)
-        return popt
+        return refined_search_range
 
     def locate_t0_fine(self):
-        zoom_factor = 10
-        resolution_factor = 10
-        desired_precision = 0.01 / resolution_factor
+        refinement_factor = 25
+        global initial_precision
+        refined_precision = initial_precision / refinement_factor
 
         # Define the data points in the full crossing time range
         if self.hc_type == "setting":
@@ -268,10 +210,9 @@ class CurveComparison:
                                                len(self.time_model):self.t0_1_index]
         # set up ranges for fine testing
         weight_range = np.where((self.transmit_model >= comp_range[0]) & (self.transmit_model <= comp_range[1]))[0]
-        # side_range = 1 / (25 * zoom_factor) * len(weight_range)
-        t0_range_list = np.arange(self.chisq_lower_t2,
-                                  self.chisq_upper_t2,
-                                  desired_precision)
+        t0_range_list = np.arange(min(self.refined_search_range),
+                                  max(self.refined_search_range),
+                                  refined_precision)
         if animate:
             plt.figure(2)
             fig, ax = plt.subplots(1, 2)
@@ -311,39 +252,37 @@ class CurveComparison:
                 plt.pause(0.01)
 
         t0_4 = t0_range_list[np.argmin(chisq_list_fine)]
-        return t0_4, t0_range_list, chisq_list_fine
-
-    def analyze_chisq_fine(self):
-        popt = self.gaussian_fit(self.t0_4, self.t0_range_list, self.chisq_list_fine)
-        chisq_func = lambda t: gaussian(t, *popt)
-        t0_e = float(least_squares(chisq_func, x0=self.t0_4).x)
-        if animate:
-            print("min chisq step 3: " + str(t0_e))
-        plus_1 = lambda t: chisq_func(t) - (chisq_func(t0_e) + 1)
-        upper_t0 = root_scalar(plus_1, method="secant", x0=t0_e + 0.1, x1=t0_e + 0.3).root
-        lower_t0 = root_scalar(plus_1, method="secant", x0=t0_e - 0.1, x1=t0_e - 0.3).root
-        # return the larger of the two differences as the chisq+1 uncertainty
-        if chisq_func(upper_t0) > chisq_func(lower_t0):
-            chisq_error = abs(upper_t0 - t0_e)
+        t0_4_index = np.where(t0_range_list == t0_4)[0][0]
+        minchisq = min(chisq_list_fine)
+        left_half = chisq_list_fine[:t0_4_index]  # data to the left of the min
+        right_half = chisq_list_fine[t0_4_index:]  # data to the right of the min
+        # finds left bound on +1 chisq
+        lower_chisq_plus_one_index = max(np.where(left_half > minchisq + 1)[0])
+        # finds right bound on +1 chisq - convoluted but takes the right half of the data, finds where it's bigger than
+        # plus one from minchisq, finds the exact value of the chisq there in order to be able to find that value in
+        # the full chisq list (we don't want the right half array indexing)
+        chisq_plus_one = right_half[min(np.where(right_half > minchisq + 1)[0])]
+        upper_chisq_plus_one_index = np.where(chisq_list_fine == right_half[min(np.where(right_half > minchisq + 1)[0])])[0][0]
+        if abs(t0_range_list[lower_chisq_plus_one_index] - t0_4) > abs(t0_range_list[upper_chisq_plus_one_index] - t0_4):
+            final_uncertainty = abs(t0_range_list[lower_chisq_plus_one_index] - t0_4)
         else:
-            chisq_error = abs(lower_t0 - t0_e)
+            final_uncertainty = abs(t0_range_list[upper_chisq_plus_one_index] - t0_4)
         if plot_toggle:
-            smoothrange = np.linspace(self.t0_range_list[0], self.t0_range_list[len(self.t0_range_list) - 1], 1000)
-            plt.figure(5)
-            plus_one_line = np.full(1000, chisq_func(t0_e)+1)
-            plt.title("gaussian fit check, uncertainty: " + str(chisq_error))
-            plt.plot(smoothrange, gaussian(smoothrange, *popt), color="red", label="guassian")
-            plt.plot(self.t0_range_list, self.chisq_list_fine, "bo", markersize="2", label="chisq data")
-            plt.plot(smoothrange, plus_one_line, color="green", label="chisq minimum +1")
+            smoothrange = np.linspace(t0_range_list[0], t0_range_list[len(t0_range_list) - 1], 1000)
+            plt.figure(4)
+            plus_one_line = np.full(1000, minchisq + 1)
+            plus_two_line = np.full(1000, minchisq + 2)
+            plt.plot(t0_range_list, chisq_list_fine, "bo", markersize="2", label="chisq data")
+            plt.plot(smoothrange, plus_one_line, color="green", label="chisq minimum +1, dt_e = "+str(final_uncertainty))
+            plt.plot(smoothrange, plus_two_line, color="green", label="chisq minimum +2")
             plt.legend()
             plt.show()
-            print("Final +1 Root found: " + str(upper_t0))
-            print("Final +1 Root found: " + str(lower_t0))
-        return t0_e, chisq_error
+        return t0_4, t0_range_list, chisq_list_fine, final_uncertainty
 
 
 if __name__ == "__main__":
     import time
+
     start_time = time.time()
     sat = AnalyzeCrossing(cb_str, H, E_kev)
     comp_obj = CurveComparison(sat, hc_type, N0=N0)

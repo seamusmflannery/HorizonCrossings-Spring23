@@ -12,7 +12,7 @@ sys.path.append("/homes/smflannery/HorizonCrossings-Summer22/nruhl_final_project
 sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project")
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing
-from tcc_slide_double_gaus import CurveComparison, generate_crossings
+from tcc_double_slide_fitless import CurveComparison, generate_crossings
 
 # Global variables
 N = 5378 # average number of unattenuated counts in data
@@ -246,7 +246,7 @@ def median_zero_and_outlier_remover(sorted_array):
         row_std = np.std(row_remaining)
         non_outliers = []
         for j, val in enumerate(row_remaining):
-            if abs((val - row_mean)/row_std) < 3:
+            if abs((val - row_mean)/row_std) < 2:
                 non_outliers.append(val)
         out_array[i] = np.median(non_outliers)
     return out_array

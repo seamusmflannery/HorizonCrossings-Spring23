@@ -17,7 +17,7 @@ from HC_precision_vs_altitude import read_data, median_zero_and_outlier_remover
 N = 5378  # average number of unattenuated counts in data
 bin_size = 1
 comp_range = [0.01, 0.99]  # range of transmittance in which to compare the curves
-E_kev_list = [1.0, 1.5, 2, 5, 8, 10]  # E_kev
+# E_kev as a list for this file
 hc_type = "rising"
 cb_str = ""
 cwd = os.getcwd()  # Get the current working directory (cwd)
@@ -34,7 +34,7 @@ def plot_compare_planets_band_test(planet1, planet2, min_alt, max_alt, alt_inter
         write_data_band_test(min_alt, max_alt, alt_interval, iterations, E_kev_list)
     cb_str = planet2
     if write:
-        write_data(min_alt, max_alt, alt_interval, iterations, E_kev_list)
+        write_data_band_test(min_alt, max_alt, alt_interval, iterations, E_kev_list)
     for E_kev in E_kev_list:
         suffix = "_int_" + str(alt_interval) + "_iter_" + str(iterations) + "_kev_" + str(E_kev) + ".npy"
         # wd = "/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project/"
@@ -165,6 +165,6 @@ def write_data_band_test(min_alt, max_alt, alt_interval, how_many, E_kev_list):
         np.save(alt_path, altitude_list)
 
 
-plot_compare_planets("Earth", "Jupiter", 4500, 5500, 200, 10, write=True)  # stable
+plot_compare_planets_band_test("Earth", "Jupiter", 4500, 5500, 200, 10, [1.0, 1.5, 2, 5, 8, 10], write=True)  # stable
 # plot_compare_planets("Jupiter", "Earth", 600, 10000, 200, 300)  # TODO stabilize on Maria
 print(wd)

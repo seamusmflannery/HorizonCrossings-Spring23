@@ -35,6 +35,7 @@ def random_iterate(list):
 def variable_write(cb_str_list, min_alt, max_alt, alt_interval, how_many):
     global cb_str
     altitude_list = np.arange(min_alt, max_alt, alt_interval)
+    rand_alt_list = np.zeros((len(altitude_list), how_many), dtype="float")
     dt_list = np.zeros((len(altitude_list), how_many), dtype="float")
     dr_list = np.zeros((len(altitude_list), how_many), dtype="float")
     fail_counter = 0
@@ -46,6 +47,7 @@ def variable_write(cb_str_list, min_alt, max_alt, alt_interval, how_many):
             for k, cb in enumerate(rand_list):
                 cb_str = rand_list[k]
                 rand_alt = np.random.choice(np.arange(alt, alt+alt_interval, 1))
+                rand_alt_list[i][j] = rand_alt
                 sat = AnalyzeCrossing(cb=cb_str, H=rand_alt, E_kev=E_kev)
                 current_runs += 1
                 try:
@@ -68,6 +70,8 @@ def variable_write(cb_str_list, min_alt, max_alt, alt_interval, how_many):
     print(dt_path)
     dr_path = wd + "sample_data/variable_" + cb_str_list[0] + "_dr_int_" + str(alt_interval) + "_iter_" + str(how_many)
     alt_path = wd + "sample_data/variable_" + cb_str_list[0] + "_alt_int_" + str(alt_interval) + "_iter_" + str(how_many)
+    plt.scatter(rand_alt_list, dt_list)
+    plt.show()
     np.save(dt_path, dt_list)
     np.save(dr_path, dr_list)
     np.save(alt_path, altitude_list)
@@ -118,5 +122,5 @@ plot_variable_data("Jupiter", 200, 100)
 cb_str_list = ["Jupiter"]
 # variable_write(cb_str_list, 600, 10000, 200, 400)
 plot_variable_data("Jupiter", 200, 400)
-# variable_write(cb_str_list, 600, 10000, 200, 12)
+variable_write(cb_str_list, 600, 10000, 200, 5)
 # plot_variable_data("Jupiter", 200, 12)
