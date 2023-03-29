@@ -11,7 +11,7 @@ sys.path.append("/homes/smflannery/HorizonCrossings-Summer22/nruhl_final_project
 sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project")
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing
-from tcc_slide_double_gaus import CurveComparison
+from tcc_double_slide_fitless import CurveComparison
 from HC_precision_vs_altitude import read_data, median_zero_and_outlier_remover
 
 N = 5378  # average number of unattenuated counts in data
@@ -116,11 +116,13 @@ def plot_variable_data(planet, interval, iter):
     plt.show()
 
 
-cb_str_list = ["Jupiter", "Jupiter1", "Jupiter2", "Jupiter3"]
+# cb_str_list = ["Jupiter", "Jupiter1", "Jupiter2", "Jupiter3"]
 # variable_write(cb_str_list, 600, 10000, 200, 100)
-plot_variable_data("Jupiter", 200, 100)
+# plot_variable_data("Jupiter", 200, 100)
 cb_str_list = ["Jupiter"]
+variable_write(cb_str_list, 600, 8200, 200, 50)
+plot_variable_data("Jupiter", 200, 50)
 # variable_write(cb_str_list, 600, 10000, 200, 400)
-plot_variable_data("Jupiter", 200, 400)
-variable_write(cb_str_list, 600, 10000, 200, 5)
+# plot_variable_data("Jupiter", 200, 400)
+# variable_write(cb_str_list, 600, 10000, 200, 5)
 # plot_variable_data("Jupiter", 200, 12)

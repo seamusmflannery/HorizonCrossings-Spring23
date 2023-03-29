@@ -30,10 +30,11 @@ def main():
     np.random.seed(3)
     global cb_str
     cb_str = "Earth"
-    write_data(600, 10000, 200, 200)
-    cb_str = "Jupiter"
-    write_data(600, 10000, 200, 200)
-    #plot_read_data(cb_str, 100, 100)
+    # write_data(600, 10000, 200, 100)
+    plot_read_data(cb_str, 200, 100)
+    # cb_str = "Jupiter"
+    # write_data(600, 10000, 200, 200)
+    # plot_read_data(cb_str, 100, 100)
     return 0
 
 
@@ -266,9 +267,9 @@ def plot_data(dt_list, dr_list, altitude_list, save=False):
     dt_med_comp_fit = curve_comp_fit(altitude_list, dt_median, True)
     # dr fits
     print("dr median inverse log fit: ")
-    dr_median_invlog_fit = plot_inverse_log_fit(altitude_list, dr_median, True)
+    # dr_median_invlog_fit = plot_inverse_log_fit(altitude_list, dr_median, True)
     print("dr 66 inverse log fit: ")
-    dr_66_invlog_fit = plot_inverse_log_fit(altitude_list, dr_66, True)
+    # dr_66_invlog_fit = plot_inverse_log_fit(altitude_list, dr_66, True)
     print("dr 33 inverse log fit: ")
     # dr_33_invlog_fit = plot_inverse_log_fit(altitude_list, dr_33, True)
     # log scaling plots/fits
@@ -295,7 +296,7 @@ def plot_data(dt_list, dr_list, altitude_list, save=False):
     plt.title(r"$\delta r_e$ uncertainty as a function of orbital altitude")
     # plt.fill_between(altitude_list, dr_33_invlog_fit, dr_66_invlog_fit)
     plt.plot(altitude_list, dr_median, label=fr"median", color="orange")
-    plt.plot(altitude_list, dr_median_invlog_fit, label=fr"median invlog fit", color="red")
+    # plt.plot(altitude_list, dr_median_invlog_fit, label=fr"median invlog fit", color="red")
     plt.ylabel(r"Positional uncertainty in HCNM measurement, $\delta r_e$ (km)")
     plt.xlabel("Orbital altitude (km)")
     plt.legend()

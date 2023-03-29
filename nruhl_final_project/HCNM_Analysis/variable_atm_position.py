@@ -11,7 +11,7 @@ sys.path.append("/homes/smflannery/HorizonCrossings-Summer22/nruhl_final_project
 sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project")
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing
-from tcc_slide_double_gaus import CurveComparison
+from tcc_double_slide_fitless import CurveComparison
 from HC_precision_vs_altitude import read_data, median_zero_and_outlier_remover
 
 N = 5378  # average number of unattenuated counts in data
@@ -41,7 +41,7 @@ def variable_write(cb_str_list, min_alt, max_alt, alt_interval, how_many):
     current_runs = 0
     for j in range(how_many):
         for i, alt in enumerate(altitude_list):
-            rand_list = random_iterate(cb_str_list)  # rotates through the planet ephem files, once each, random order
+            rand_list = random_iterate(np.copy(cb_str_list))  # rotates through the planet ephem files, once each, random order
             for k, cb in enumerate(rand_list):
                 cb_str = rand_list[k]
                 rand_alt = np.random.choice(np.arange(alt, alt+alt_interval, 1))
@@ -49,7 +49,7 @@ def variable_write(cb_str_list, min_alt, max_alt, alt_interval, how_many):
                 current_runs += 1
                 try:
                     comp_obj = CurveComparison(sat, hc_type, N)
-                    t_e_list[i][j] = comp_obj.t_e
+                    t_e_list[i][j] = comp_obj.t0_e
                 except RuntimeError:
                     print(str(sat.H) + " failed to fit")
                     fail_counter += 1
@@ -62,12 +62,10 @@ def variable_write(cb_str_list, min_alt, max_alt, alt_interval, how_many):
                       ", " + str(
                         round(current_runs * 100 / total_runs, 2)) + "% complete")
     print("percent failure: " + str(fail_counter / total_runs * 100) + "%")
-    dt_path = wd + "sample_data/variable_" + cb_str_list[0] + "_dt_int_" + str(alt_interval) + "_iter_" + str(how_many)
-    print(dt_path)
-    dr_path = wd + "sample_data/variable_" + cb_str_list[0] + "_dr_int_" + str(alt_interval) + "_iter_" + str(how_many)
+    t_e_path = wd + "sample_data/variable_" + cb_str_list[0] + "_t_e_int_" + str(alt_interval) + "_iter_" + str(how_many)
+    print(t_e_path)
     alt_path = wd + "sample_data/variable_" + cb_str_list[0] + "_alt_int_" + str(alt_interval) + "_iter_" + str(how_many)
-    np.save(dt_path, dt_list)
-    np.save(dr_path, dr_list)
+    np.save(t_e_path, t_e_list)
     np.save(alt_path, altitude_list)
     plt.show()
 
@@ -75,46 +73,31 @@ def variable_write(cb_str_list, min_alt, max_alt, alt_interval, how_many):
 def plot_variable_data(planet, interval, iter):
     global cb_str_list
     suffix = "_int_" + str(interval) + "_iter_" + str(iter) + ".npy"
-    dt_name = wd + "sample_data/variable_" + planet + "_dt" + suffix
-    dr_name = wd + "sample_data/variable_" + planet + "_dr" + suffix
+    t_e_name = wd + "sample_data/variable_" + planet + "_t_e" + suffix
     alt_name = wd + "sample_data/variable_" + planet + "_alt" + suffix
-    dt_list = read_data(dt_name)
-    dr_list = read_data(dr_name)
+    t_e_list = np.subtract(read_data(t_e_name), 2000)
     altitude_list = read_data(alt_name)
-    dt_sort = np.sort(dt_list)
-    dr_sort = np.sort(dr_list)
-    dt_median = median_zero_and_outlier_remover(dt_sort)
-    dr_median = median_zero_and_outlier_remover(dr_sort)
-    # plt.plot(altitude_list, dt_sort)
-    # plt.show()
+    t_e_sort = abs(np.sort(t_e_list))
 
-    plt.subplot(211)
+    t_e_median = median_zero_and_outlier_remover(t_e_sort)
+
     plt.title(r"$\delta t$ uncertainty as a function of orbital altitude, " + str(len(cb_str_list)) + " atmospheric composition(s)")
     # plt.fill_between(altitude_list, dt_66_invlog_fit, dt_33_invlog_fit)
-    plt.plot(altitude_list, dt_median, label=fr"median, " + str(iter*4) + " iterations", color="red")
+    plt.plot(altitude_list, t_e_median, label=fr"median, " + str(iter*4) + " iterations", color="red")
     # plt.plot(altitude_list, dt_med_comp_fit, label=fr"median invlog fit", color="red")
     plt.ylabel(
         fr"$\delta t$ (sec)")
     plt.xlabel("Orbital altitude (km)")
     plt.legend()
-
-    plt.subplot(212)
-    plt.title(r"$\delta r$ uncertainty as a function of orbital altitude, " + str(len(cb_str_list)) + " atmospheric composition(s)")
-    # plt.fill_between(altitude_list, dr_33_invlog_fit, dr_66_invlog_fit)
-    plt.plot(altitude_list, dr_median, label=fr"median, " + str(iter*4) + " iterations", color="red")
-    # plt.plot(altitude_list, dr_median_invlog_fit, label=fr"median invlog fit", color="red")
-    plt.ylabel(r"$\delta r$ (km)")
-    plt.xlabel("Orbital altitude (km)")
-    plt.legend()
-    plt.tight_layout()
     plt.show()
 
 
+
 cb_str_list = ["Jupiter", "Jupiter1", "Jupiter2", "Jupiter3"]
-# variable_write(cb_str_list, 600, 10000, 200, 100)
-plot_variable_data("Jupiter", 200, 100)
+# variable_write(cb_str_list, 600, 10000, 200, 11)
+plot_variable_data("Jupiter", 200, 11)
 cb_str_list = ["Jupiter"]
 # variable_write(cb_str_list, 600, 10000, 200, 400)
-plot_variable_data("Jupiter", 200, 400)
+# plot_variable_data("Jupiter", 200, 400)
 # variable_write(cb_str_list, 600, 10000, 200, 12)
 # plot_variable_data("Jupiter", 200, 12)

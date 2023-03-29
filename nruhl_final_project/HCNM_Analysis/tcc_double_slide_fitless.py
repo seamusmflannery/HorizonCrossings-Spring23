@@ -25,13 +25,13 @@ H = 2200  # km, orbital altitude
 bin_size = 1.0
 # range of transmittance in which to compare the curves
 comp_range = [0.01, 0.99]
-animate = True  # animates sliding and analysis process for education and debugging
-plot_toggle = True
+
 animate_res = 8  # fractional number of points to be rendered in animation
 # Parameters involved in generating hc data
 std = 0.05  # standard deviation of normally-distributed noise
 np.random.seed(3)
 initial_precision = 0.01
+scan_plot_toggle = False
 
 
 # This function generates the horizon crossing times and transmittance arrays for both model and data
@@ -60,13 +60,26 @@ def generate_crossings(sat, hc_type):
     return time_model, transmit_model, time_data, transmit_data
 
 
+def line_eq_between(point1, point2, chisq_plus_one):
+    x1 = point1[0]
+    y1 = point1[1]
+    x2 = point2[0]
+    y2 = point2[1]
+    m = (y1 - y2) / (x1 - x2)  # calculate slope
+    b = -m*x1+y1  # point slope form to solve for b
+    t_out = (chisq_plus_one-b)/m  # rearanged y=mx+b to solve for x, given y=chisq_plus_one
+    return t_out, m, b
+
+
 # This class executes the CurveComparison
 class CurveComparison:
-    def __init__(self, sat, hc_type, N0, interp_type="linear"):
+    def __init__(self, sat, hc_type, N0, interp_type="linear", animate=False, plot_toggle=False):
         self.interp_type = interp_type
         self.sat = sat
         self.hc_type = hc_type  # want this to be autonomous
         self.N0 = N0
+        self.animate = animate  # animates sliding and analysis process for education and debugging
+        self.plot_toggle = plot_toggle
         self.time_model, self.transmit_model, self.time_data, self.transmit_data = generate_crossings(self.sat,
                                                                                                       self.hc_type)
         # First step to identify t0
@@ -78,6 +91,7 @@ class CurveComparison:
         self.refined_search_range = self.refine_search_range()
         # Repeat step 2 on narrower range, calculate chisq for narrower range, higher resolution
         self.t0_e, self.t0_range_list, self.chisq_list_fine, self.dt_e = self.locate_t0_fine()
+
 
     # This function is used to identify the model time (from t0)
     def time_vs_transmit_model(self, transmit_approx_50):
@@ -123,14 +137,14 @@ class CurveComparison:
             t_start_list = np.arange(self.t0_1 - 2, self.t0_1 + 2, initial_precision)
         else:
             t_start_list = np.arange(self.t0_1 - side_range, self.t0_1 + side_range, initial_precision)
-        if animate:
+        if self.animate:
             plt.figure(1)
             fig, ax = plt.subplots(1, 2)
             fig.suptitle("Horizon Crossing Curve Comparison")
             fig.supxlabel("Time (sec)")
         chisq_list = np.zeros(len(t_start_list))
         for indx, t0_guess in enumerate(t_start_list):
-            if animate:
+            if self.animate:
                 ax[0].clear()
             # define interpolating function and array for the model
             if self.hc_type == "rising":
@@ -154,7 +168,7 @@ class CurveComparison:
                 (rate_data[weight_range] - model_rate_interp) ** 2 / model_rate_interp)
             chisq_list[indx] = chisq
 
-            if animate and indx % animate_res == 0:
+            if self.animate and indx % animate_res == 0:
                 ax[0].plot(time_crossing_data[weight_range], model_rate_interp, 'b-')
                 ax[0].plot(time_crossing_data[weight_range], rate_data[weight_range], 'kx')
                 ax[1].plot(t0_guess, chisq, 'r.')
@@ -180,7 +194,7 @@ class CurveComparison:
         # the full chisq list (we don't want the right half array indexing)
         newmax_index = np.where(self.chisq_list == right_half[min(np.where(right_half > minchisq + 3)[0])])[0][0]
         refined_search_range = np.array(self.t0_guess_list[newmin_index:newmax_index])
-        if plot_toggle:
+        if self.plot_toggle:
             smoothrange = np.linspace(self.t0_guess_list[0], self.t0_guess_list[len(self.t0_guess_list) - 1], 1000)
             plt.figure(3)
             plus_one_line = np.full(1000, minchisq + 1)
@@ -192,7 +206,8 @@ class CurveComparison:
             plt.show()
         return refined_search_range
 
-    def locate_t0_fine(self):
+
+    def locate_t0_fine(self, recurse_able=True):
         refinement_factor = 25
         global initial_precision
         refined_precision = initial_precision / refinement_factor
@@ -213,14 +228,14 @@ class CurveComparison:
         t0_range_list = np.arange(min(self.refined_search_range),
                                   max(self.refined_search_range),
                                   refined_precision)
-        if animate:
+        if self.animate:
             plt.figure(2)
             fig, ax = plt.subplots(1, 2)
             fig.suptitle("Horizon Crossing Curve Comparison Fine Zoom")
             fig.supxlabel("Time (sec)")
         chisq_list_fine = np.zeros(len(t0_range_list))
         for indx, t0_guess in enumerate(t0_range_list):
-            if animate:
+            if self.animate:
                 ax[0].clear()
             # define interpolating function and array for the model
             if self.hc_type == "rising":
@@ -240,8 +255,9 @@ class CurveComparison:
             chisq = np.sum(
                 (rate_data[weight_range] - model_rate_interp) ** 2 / model_rate_interp)
             chisq_list_fine[indx] = chisq
-
-            if animate and indx % animate_res == 0:
+            if not recurse_able:
+                animate_res = 1
+            if self.animate and indx % animate_res == 0:
                 ax[0].plot(time_crossing_data[weight_range], model_rate_interp, 'b-')
                 ax[0].plot(time_crossing_data[weight_range], rate_data[weight_range], 'kx')
                 ax[1].plot(t0_guess, chisq, 'r.')
@@ -256,27 +272,67 @@ class CurveComparison:
         minchisq = min(chisq_list_fine)
         left_half = chisq_list_fine[:t0_4_index]  # data to the left of the min
         right_half = chisq_list_fine[t0_4_index:]  # data to the right of the min
-        # finds left bound on +1 chisq
-        lower_chisq_plus_one_index = max(np.where(left_half > minchisq + 1)[0])
+        # finds left upper y-bound on +1 chisq
+        left_upper_index = max(np.where(left_half > minchisq + 1)[0])
+        left_upper_time = t0_range_list[left_upper_index]
+        left_upper_chisq = chisq_list_fine[left_upper_index]
+        left_point1 = [left_upper_time, left_upper_chisq]
+        # finds left lower y-bound on +1 chisq
+        left_lower_time = t0_range_list[left_upper_index + 1]
+        left_lower_chisq = chisq_list_fine[left_upper_index + 1]
+        left_point2 = [left_lower_time, left_lower_chisq]
+        left_chisq_p_one, left_m, left_b = line_eq_between(left_point1, left_point2, minchisq + 1)
+
         # finds right bound on +1 chisq - convoluted but takes the right half of the data, finds where it's bigger than
         # plus one from minchisq, finds the exact value of the chisq there in order to be able to find that value in
         # the full chisq list (we don't want the right half array indexing)
-        chisq_plus_one = right_half[min(np.where(right_half > minchisq + 1)[0])]
-        upper_chisq_plus_one_index = np.where(chisq_list_fine == right_half[min(np.where(right_half > minchisq + 1)[0])])[0][0]
-        if abs(t0_range_list[lower_chisq_plus_one_index] - t0_4) > abs(t0_range_list[upper_chisq_plus_one_index] - t0_4):
-            final_uncertainty = abs(t0_range_list[lower_chisq_plus_one_index] - t0_4)
-        else:
-            final_uncertainty = abs(t0_range_list[upper_chisq_plus_one_index] - t0_4)
-        if plot_toggle:
-            smoothrange = np.linspace(t0_range_list[0], t0_range_list[len(t0_range_list) - 1], 1000)
+        right_upper_index = np.where(chisq_list_fine == right_half[min(np.where(right_half > minchisq + 1)[0])])[0][0]
+        right_upper_time = t0_range_list[right_upper_index]
+        right_upper_chisq = chisq_list_fine[right_upper_index]
+        right_point2 = [right_upper_time, right_upper_chisq]
+        # finds right lower y-bound on +1 chisq
+        right_lower_time = t0_range_list[right_upper_index - 1]
+        right_lower_chisq = chisq_list_fine[right_upper_index - 1]
+        right_point1 = [right_lower_time, right_lower_chisq]
+        right_chisq_p_one, right_m, right_b = line_eq_between(right_point1, right_point2, minchisq + 1)
+
+        left_half_width = abs(left_chisq_p_one - t0_4)
+        right_half_width = abs(right_chisq_p_one - t0_4)
+        final_uncertainty = max(left_half_width, right_half_width)
+        # looking for what causes extreme low values of uncertainty
+        if (final_uncertainty < 0.005 or final_uncertainty > 0.035) and recurse_able and scan_plot_toggle:
+            # run this one again, but show it
+            plot_state = [self.plot_toggle, self.animate]
+            self.plot_toggle = True
+            self.animate = True
+            # use the same crossing, so the same
+            # self.time_model, self.transmit_model, self.time_data, self.transmit_data
+            self.t0_1 = self.locate_t0_step1()
+            self.t0_1_index = np.where(self.time_data >= self.t0_1)[0][0]
+            self.t0_2, self.t0_guess_list, self.chisq_list = self.locate_t0_step2()
+            self.refined_search_range = self.refine_search_range()
+            self.t0_e, self.t0_range_list, self.chisq_list_fine, self.dt_e = self.locate_t0_fine(recurse_able=False)
+            self.plot_toggle, self.animate = plot_state[0], plot_state[1]
+            return t0_4, t0_range_list, chisq_list_fine, final_uncertainty
+
+        if self.plot_toggle:
+            smooth_range = np.linspace(t0_range_list[0], t0_range_list[len(t0_range_list) - 1], 1000)
             plt.figure(4)
             plus_one_line = np.full(1000, minchisq + 1)
-            plus_two_line = np.full(1000, minchisq + 2)
+            # plus_two_line = np.full(1000, minchisq + 2)
+            left_range = np.linspace(left_upper_time, left_lower_time, 1000)
+            left_line = left_range * left_m + left_b
+            right_range = np.linspace(right_lower_time, right_upper_time, 1000)
+            right_line = right_range * right_m + right_b
+            plt.plot(left_range, left_line, color="red")
+            plt.plot(right_range, right_line, color="red")
+            plt.scatter(t0_4, minchisq, color="red", label="t0_e")
             plt.plot(t0_range_list, chisq_list_fine, "bo", markersize="2", label="chisq data")
-            plt.plot(smoothrange, plus_one_line, color="green", label="chisq minimum +1, dt_e = "+str(final_uncertainty))
-            plt.plot(smoothrange, plus_two_line, color="green", label="chisq minimum +2")
+            plt.plot(smooth_range, plus_one_line, color="green", label="chisq minimum +1, dt_e = "+str(final_uncertainty))
+            # plt.plot(smooth_range, plus_two_line, color="green", label="chisq minimum +2")
             plt.legend()
             plt.show()
+
         return t0_4, t0_range_list, chisq_list_fine, final_uncertainty
 
 
