@@ -3,6 +3,7 @@
 
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
+from scipy.optimize import minimize
 from scipy.optimize import root_scalar
 from scipy.optimize import least_squares
 from scipy.optimize import curve_fit
@@ -25,13 +26,11 @@ H = 2200  # km, orbital altitude
 bin_size = 1.0
 # range of transmittance in which to compare the curves
 comp_range = [0.01, 0.99]
-
-animate_res = 8  # fractional number of points to be rendered in animation
 # Parameters involved in generating hc data
 std = 0.05  # standard deviation of normally-distributed noise
 np.random.seed(3)
 initial_precision = 0.01
-scan_plot_toggle = False
+scan_plot_toggle = False  # toggle whether outliers trigger plotting
 
 
 # This function generates the horizon crossing times and transmittance arrays for both model and data
@@ -82,6 +81,7 @@ class CurveComparison:
         self.plot_toggle = plot_toggle
         self.time_model, self.transmit_model, self.time_data, self.transmit_data = generate_crossings(self.sat,
                                                                                                       self.hc_type)
+        self.animate_res = 8  # fractional number of points to be rendered in animation - 8 default, 1 on problem
         # First step to identify t0
         self.t0_1 = self.locate_t0_step1()
         self.t0_1_index = np.where(self.time_data >= self.t0_1)[0][0]
@@ -168,7 +168,7 @@ class CurveComparison:
                 (rate_data[weight_range] - model_rate_interp) ** 2 / model_rate_interp)
             chisq_list[indx] = chisq
 
-            if self.animate and indx % animate_res == 0:
+            if self.animate and indx % self.animate_res == 0:
                 ax[0].plot(time_crossing_data[weight_range], model_rate_interp, 'b-')
                 ax[0].plot(time_crossing_data[weight_range], rate_data[weight_range], 'kx')
                 ax[1].plot(t0_guess, chisq, 'r.')
@@ -188,7 +188,7 @@ class CurveComparison:
         left_half = self.chisq_list[:min_index]  # data to the left of the min
         right_half = self.chisq_list[min_index:]  # data to the right of the min
         # finds left bound on +3 chisq
-        newmin_index = max(np.where(left_half > minchisq + 3)[0])
+        newmin_index = max(np.where(left_half > minchisq + 4)[0])
         # finds right bound on +3 chisq - convoluted but takes the right half of the data, finds where its bigger than
         # plus three from minchisq, finds the exact value of the chisq there in order to be able to find that value in
         # the full chisq list (we don't want the right half array indexing)
@@ -256,8 +256,8 @@ class CurveComparison:
                 (rate_data[weight_range] - model_rate_interp) ** 2 / model_rate_interp)
             chisq_list_fine[indx] = chisq
             if not recurse_able:
-                animate_res = 1
-            if self.animate and indx % animate_res == 0:
+                self.animate_res = 1
+            if self.animate and indx % self.animate_res == 0:
                 ax[0].plot(time_crossing_data[weight_range], model_rate_interp, 'b-')
                 ax[0].plot(time_crossing_data[weight_range], rate_data[weight_range], 'kx')
                 ax[1].plot(t0_guess, chisq, 'r.')
@@ -267,9 +267,13 @@ class CurveComparison:
                 ax[1].set_ylabel(r"$\chi^2$")
                 plt.pause(0.01)
 
-        t0_4 = t0_range_list[np.argmin(chisq_list_fine)]
-        t0_4_index = np.where(t0_range_list == t0_4)[0][0]
-        minchisq = min(chisq_list_fine)
+        t0_4_guess = t0_range_list[np.argmin(chisq_list_fine)]
+        t0_4_range = t0_range_list[np.argmin(chisq_list_fine)-2:np.argmin(chisq_list_fine)+3]
+        t0_4_range_chisq = chisq_list_fine[np.argmin(chisq_list_fine)-2:np.argmin(chisq_list_fine)+3]
+        t0_4_func = interp1d(t0_4_range, t0_4_range_chisq, kind="cubic", fill_value="extrapolate")
+        t0_4 = minimize(t0_4_func, t0_4_guess, bounds=[(min(t0_4_range),max(t0_4_range))]).x
+        minchisq = t0_4_func(t0_4)
+        t0_4_index = np.where(t0_range_list == t0_4_guess)[0][0]
         left_half = chisq_list_fine[:t0_4_index]  # data to the left of the min
         right_half = chisq_list_fine[t0_4_index:]  # data to the right of the min
         # finds left upper y-bound on +1 chisq
@@ -317,19 +321,19 @@ class CurveComparison:
 
         if self.plot_toggle:
             smooth_range = np.linspace(t0_range_list[0], t0_range_list[len(t0_range_list) - 1], 1000)
+            smooth_t0_4_range = np.linspace(t0_4_range[0], t0_4_range[4], 1000)
             plt.figure(4)
             plus_one_line = np.full(1000, minchisq + 1)
-            # plus_two_line = np.full(1000, minchisq + 2)
             left_range = np.linspace(left_upper_time, left_lower_time, 1000)
             left_line = left_range * left_m + left_b
             right_range = np.linspace(right_lower_time, right_upper_time, 1000)
             right_line = right_range * right_m + right_b
             plt.plot(left_range, left_line, color="red")
             plt.plot(right_range, right_line, color="red")
+            plt.plot(smooth_t0_4_range, t0_4_func(smooth_t0_4_range), color="green", label="minimum interpolation")
             plt.scatter(t0_4, minchisq, color="red", label="t0_e")
             plt.plot(t0_range_list, chisq_list_fine, "bo", markersize="2", label="chisq data")
             plt.plot(smooth_range, plus_one_line, color="green", label="chisq minimum +1, dt_e = "+str(final_uncertainty))
-            # plt.plot(smooth_range, plus_two_line, color="green", label="chisq minimum +2")
             plt.legend()
             plt.show()
 

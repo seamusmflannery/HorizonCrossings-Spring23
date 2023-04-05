@@ -165,6 +165,6 @@ def write_data_band_test(min_alt, max_alt, alt_interval, how_many, E_kev_list):
         np.save(alt_path, altitude_list)
 
 
-plot_compare_planets_band_test("Earth", "Jupiter", 4500, 5500, 200, 10, [1.0, 1.5, 2, 5, 8, 10], write=True)  # stable
+plot_compare_planets_band_test("Earth", "Jupiter", 600, 10000, 200, 100, [1.0, 1.5, 2, 5, 8, 10], write=True)  # stable
 # plot_compare_planets("Jupiter", "Earth", 600, 10000, 200, 300)  # TODO stabilize on Maria
 print(wd)

@@ -70,11 +70,14 @@ def variable_write(cb_str_list, min_alt, max_alt, alt_interval, how_many):
     print(dt_path)
     dr_path = wd + "sample_data/variable_" + cb_str_list[0] + "_dr_int_" + str(alt_interval) + "_iter_" + str(how_many)
     alt_path = wd + "sample_data/variable_" + cb_str_list[0] + "_alt_int_" + str(alt_interval) + "_iter_" + str(how_many)
+    rand_alt_path = wd + "sample_data/variable_" + cb_str_list[0] + "_randalt_int_" + str(alt_interval) + "_iter_" + str(
+        how_many)
     plt.scatter(rand_alt_list, dt_list)
     plt.show()
     np.save(dt_path, dt_list)
     np.save(dr_path, dr_list)
     np.save(alt_path, altitude_list)
+    np.save(rand_alt_path, rand_alt_list)
     plt.show()
 
 
@@ -84,8 +87,10 @@ def plot_variable_data(planet, interval, iter):
     dt_name = wd + "sample_data/variable_" + planet + "_dt" + suffix
     dr_name = wd + "sample_data/variable_" + planet + "_dr" + suffix
     alt_name = wd + "sample_data/variable_" + planet + "_alt" + suffix
+    randalt_name = wd + "sample_data/variable_" + planet + "_randalt" + suffix
     dt_list = read_data(dt_name)
     dr_list = read_data(dr_name)
+    rand_alt_list = read_data(randalt_name)
     altitude_list = read_data(alt_name)
     dt_sort = np.sort(dt_list)
     dr_sort = np.sort(dr_list)
@@ -96,9 +101,8 @@ def plot_variable_data(planet, interval, iter):
 
     plt.subplot(211)
     plt.title(r"$\delta t$ uncertainty as a function of orbital altitude, " + str(len(cb_str_list)) + " atmospheric composition(s)")
-    # plt.fill_between(altitude_list, dt_66_invlog_fit, dt_33_invlog_fit)
+    plt.scatter(rand_alt_list, dt_list)
     plt.plot(altitude_list, dt_median, label=fr"median, " + str(iter*4) + " iterations", color="red")
-    # plt.plot(altitude_list, dt_med_comp_fit, label=fr"median invlog fit", color="red")
     plt.ylabel(
         fr"$\delta t$ (sec)")
     plt.xlabel("Orbital altitude (km)")
@@ -106,9 +110,8 @@ def plot_variable_data(planet, interval, iter):
 
     plt.subplot(212)
     plt.title(r"$\delta r$ uncertainty as a function of orbital altitude, " + str(len(cb_str_list)) + " atmospheric composition(s)")
-    # plt.fill_between(altitude_list, dr_33_invlog_fit, dr_66_invlog_fit)
+    plt.scatter(rand_alt_list, dr_list)
     plt.plot(altitude_list, dr_median, label=fr"median, " + str(iter*4) + " iterations", color="red")
-    # plt.plot(altitude_list, dr_median_invlog_fit, label=fr"median invlog fit", color="red")
     plt.ylabel(r"$\delta r$ (km)")
     plt.xlabel("Orbital altitude (km)")
     plt.legend()
@@ -116,12 +119,12 @@ def plot_variable_data(planet, interval, iter):
     plt.show()
 
 
-# cb_str_list = ["Jupiter", "Jupiter1", "Jupiter2", "Jupiter3"]
-# variable_write(cb_str_list, 600, 10000, 200, 100)
-# plot_variable_data("Jupiter", 200, 100)
+cb_str_list = ["Jupiter", "Jupiter1", "Jupiter2", "Jupiter3"]
+variable_write(cb_str_list, 600, 10000, 200, 10)
+plot_variable_data("Jupiter", 200, 10)
 cb_str_list = ["Jupiter"]
-variable_write(cb_str_list, 600, 8200, 200, 50)
-plot_variable_data("Jupiter", 200, 50)
+# variable_write(cb_str_list, 600, 8200, 200, 8)
+plot_variable_data("Jupiter", 200, 8)
 # variable_write(cb_str_list, 600, 10000, 200, 400)
 # plot_variable_data("Jupiter", 200, 400)
 # variable_write(cb_str_list, 600, 10000, 200, 5)
