@@ -71,21 +71,21 @@ def plot_compare_planets_band_test(planet1, planet2, min_alt, max_alt, alt_inter
 
         plt.subplot(221)
         # plt.title(r"$\delta t$ vs. altitude - " + planet1)
-        plt.plot(altitude_list1, dt_median1, label=fr"median " + str(E_kev))
+        plt.plot(altitude_list1, dt_median1, label=fr"median " + str(E_kev) + " KeV")
         # plt.ylabel(fr"$\delta t$ (sec)")
         # plt.xlabel("Orbital altitude (km)")
         # plt.legend()
 
         plt.subplot(222)
         # plt.title(r"$\delta t$ vs. altitude - " + planet2)
-        plt.plot(altitude_list2, dt_median2, label=fr"median " + str(E_kev))
+        plt.plot(altitude_list2, dt_median2, label=fr"median " + str(E_kev)  + " KeV")
         # plt.ylabel(fr"$\delta t$ (sec)")
         # plt.xlabel("Orbital altitude (km)")
         # plt.legend()
 
         plt.subplot(223)
         # plt.title(r"$\delta r$ vs. altitude - " + planet1)
-        plt.plot(altitude_list1, dr_median1, label=fr"median " + str(E_kev))
+        plt.plot(altitude_list1, dr_median1, label=fr"median " + str(E_kev)  + " KeV")
         # plt.plot(altitude_list1, dr_median_invlog_fit1, label=fr"median invlog fit", color="red")
         # plt.ylabel(r"$\delta r$ (km)")
         # plt.xlabel("Orbital altitude (km)")
@@ -93,7 +93,7 @@ def plot_compare_planets_band_test(planet1, planet2, min_alt, max_alt, alt_inter
 
         plt.subplot(224)
         # plt.title(r"$\delta r$ vs. altitude - " + planet2)
-        plt.plot(altitude_list2, dr_median2, label=fr"median " + str(E_kev))
+        plt.plot(altitude_list2, dr_median2, label=fr"median " + str(E_kev)  + " KeV")
         # plt.ylabel(r"$\delta r$ (km)")
         # plt.xlabel("Orbital altitude (km)")
         # plt.legend()
@@ -117,7 +117,7 @@ def plot_compare_planets_band_test(planet1, planet2, min_alt, max_alt, alt_inter
 
     plt.subplot(224)
     plt.title(r"$\delta r$ vs. altitude - " + planet2)
-    plt.plot(altitude_list2, dr_median2, label=fr"median " + str(E_kev))
+    plt.plot(altitude_list2, dr_median2, label=fr"median " + str(E_kev)  + " KeV")
     plt.ylabel(r"$\delta r$ (km)")
     plt.xlabel("Orbital altitude (km)")
     plt.legend()
@@ -165,6 +165,6 @@ def write_data_band_test(min_alt, max_alt, alt_interval, how_many, E_kev_list):
         np.save(alt_path, altitude_list)
 
 
-plot_compare_planets_band_test("Earth", "Jupiter", 600, 10000, 200, 100, [1.0, 1.5, 2, 5, 8, 10], write=True)  # stable
+plot_compare_planets_band_test("Earth", "Jupiter", 600, 10000, 200, 100, [1.0, 1.5, 2, 5, 8, 10], write=False)  # stable
 # plot_compare_planets("Jupiter", "Earth", 600, 10000, 200, 300)  # TODO stabilize on Maria
 print(wd)
