@@ -12,7 +12,7 @@ sys.path.append("/homes/smflannery/HorizonCrossings-Summer22/nruhl_final_project
 sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project")
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing
-from tcc_double_slide_fitless import CurveComparison, generate_crossings
+from tcc_double_slide_minfit import CurveComparison, generate_crossings
 
 # Global variables
 N = 5378 # average number of unattenuated counts in data
