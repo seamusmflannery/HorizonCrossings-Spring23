@@ -78,6 +78,7 @@ def variable_write(cb_str_list, min_alt, max_alt, alt_interval, how_many):
     np.save(dr_path, dr_list)
     np.save(alt_path, altitude_list)
     np.save(rand_alt_path, rand_alt_list)
+    print(rand_alt_path, " rand alt save path")
     plt.show()
 
 
@@ -88,6 +89,7 @@ def plot_variable_data(planet, interval, iter):
     dr_name = wd + "sample_data/variable_" + planet + "_dr" + suffix
     alt_name = wd + "sample_data/variable_" + planet + "_alt" + suffix
     randalt_name = wd + "sample_data/variable_" + planet + "_randalt" + suffix
+    print(randalt_name, "rand alt load path")
     dt_list = read_data(dt_name)
     dr_list = read_data(dr_name)
     rand_alt_list = read_data(randalt_name)
