@@ -67,7 +67,7 @@ def variable_write(cb_str_list, min_alt, max_alt, alt_interval, how_many):
                         round(current_runs * 100 / total_runs, 2)) + "% complete")
     print("percent failure: " + str(fail_counter / total_runs * 100) + "%")
     dt_path = wd + "sample_data/variable_" + cb_str_list[0] + "_dt_int_" + str(alt_interval) + "_iter_" + str(how_many)
-    print(dt_path)
+    print("dt_path:", dt_path)
     dr_path = wd + "sample_data/variable_" + cb_str_list[0] + "_dr_int_" + str(alt_interval) + "_iter_" + str(how_many)
     alt_path = wd + "sample_data/variable_" + cb_str_list[0] + "_alt_int_" + str(alt_interval) + "_iter_" + str(how_many)
     rand_alt_path = wd + "sample_data/variable_" + cb_str_list[0] + "_randalt_int_" + str(alt_interval) + "_iter_" + str(
