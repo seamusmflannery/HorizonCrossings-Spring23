@@ -119,10 +119,10 @@ def plot_variable_data(planet, interval, iter):
 
 
 cb_str_list = ["Jupiter", "Jupiter1", "Jupiter2", "Jupiter3"]
-variable_write(cb_str_list, 600, 10000, 200, 10)
+variable_write(cb_str_list, 600, 10000, 200, 2)
 # plot_variable_data("Jupiter", 200, 10)
 cb_str_list = ["Jupiter"]
-variable_write(cb_str_list, 600, 10000, 200, 40)
+variable_write(cb_str_list, 600, 10000, 200, 8)
 # plot_variable_data("Jupiter", 200, 40)
 # variable_write(cb_str_list, 600, 10000, 200, 400)
 # plot_variable_data("Jupiter", 200, 400)
