@@ -117,13 +117,38 @@ def plot_variable_data(planet, interval, iter):
     plt.tight_layout()
     plt.show()
 
+def plot_static_data(planet, interval, iter):
+    global cb_str_list
+    suffix = "_int_" + str(interval) + "_iter_" + str(iter) + ".npy"
+    dt_name = wd + "sample_data/variable_" + planet + "_dt" + suffix
+    dr_name = wd + "sample_data/variable_" + planet + "_dr" + suffix
+    alt_name = wd + "sample_data/variable_" + planet + "_alt" + suffix
+    randalt_name = wd + "sample_data/variable_" + planet + "_randalt" + suffix
+    print(randalt_name, "rand alt load path")
+    dt_list = read_data(dt_name)
+    dr_list = read_data(dr_name)
+    rand_alt_list = read_data(randalt_name)
+    altitude_list = read_data(alt_name)
+    dt_sort = np.sort(dt_list)
+    dr_sort = np.sort(dr_list)
+    dt_median = median_zero_and_outlier_remover(dt_sort)
+    plt.title(r"$\delta t$ uncertainty as a function of orbital altitude")
+    plt.scatter(rand_alt_list, dt_list)
+    # plt.plot(altitude_list, dt_median, label=fr"median", color="red")
+    plt.ylabel(
+        fr"$\delta t$ (sec)")
+    plt.xlabel("Orbital altitude (km)")
+    plt.legend()
+    plt.show()
 
-cb_str_list = ["Jupiter", "Jupiter1", "Jupiter2", "Jupiter3"]
-variable_write(cb_str_list, 600, 10000, 200, 100)
-# plot_variable_data("Jupiter", 200, 10)
+
+# cb_str_list = ["Jupiter", "Jupiter1", "Jupiter2", "Jupiter3"]
+# variable_write(cb_str_list, 600, 10000, 200, 100)
+# plot_variable_data("Jupiter", 200, 100)
 cb_str_list = ["Jupiter"]
-variable_write(cb_str_list, 600, 10000, 200, 400)
-# plot_variable_data("Jupiter", 200, 40)
+# variable_write(cb_str_list, 600, 10000, 200, 20)
+# plot_variable_data("Jupiter", 200, 20)
+plot_static_data("Jupiter", 200, 20)
 # variable_write(cb_str_list, 600, 10000, 200, 400)
 # plot_variable_data("Jupiter", 200, 400)
 # variable_write(cb_str_list, 600, 10000, 200, 5)
