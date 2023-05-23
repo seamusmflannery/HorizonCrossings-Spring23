@@ -6,8 +6,11 @@ import sys
 import os
 import random
 
-# set path for local modules
+# set path for local modules, path.append should simply give the program more places to look for things so
+# even though only one of these will be valid for a given instance, these should not interfere with each other
+# path for linux machines in the lab
 sys.path.append("/homes/smflannery/HorizonCrossings-Summer22/nruhl_final_project")
+#path for my laptop
 sys.path.append("/Users/seamusflannery/Documents/HorizonCrossings-Summer22/nruhl_final_project")
 # import local modules
 from AnalyzeCrossing import AnalyzeCrossing
