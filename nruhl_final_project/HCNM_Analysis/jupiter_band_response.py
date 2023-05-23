@@ -64,29 +64,29 @@ def plot_compare_planets_band_test(planet1, planet2, min_alt, max_alt, alt_inter
         dt_median2 = median_zero_and_outlier_remover(dt_list2)
         dr_median2 = median_zero_and_outlier_remover(dr_list2)
 
-        # plot each dr and dt random plot for each planet for this KeV
+        # plot each dr and dt random plot for each planet for this keV
         plt.figure(1)
         plt.subplot(221)
-        plt.scatter(rand_alt_list1, dt_list1, label=fr"$\delta$ t " + str(E_kev) + " KeV")
+        plt.scatter(rand_alt_list1, dt_list1, label=fr"$\delta$ t " + str(E_kev) + " keV")
 
         plt.subplot(222)
-        plt.scatter(rand_alt_list2, dt_list2, label=fr"$\delta$ t " + str(E_kev)  + " KeV")
+        plt.scatter(rand_alt_list2, dt_list2, label=fr"$\delta$ t " + str(E_kev)  + " keV")
 
         plt.subplot(223)
-        plt.scatter(rand_alt_list1, dr_list1, label=fr"$\delta$ r " + str(E_kev)  + " KeV")
+        plt.scatter(rand_alt_list1, dr_list1, label=fr"$\delta$ r " + str(E_kev)  + " keV")
 
         plt.subplot(224)
-        plt.scatter(rand_alt_list2, dr_list2, label=fr"$\delta$ r " + str(E_kev)  + " KeV")
+        plt.scatter(rand_alt_list2, dr_list2, label=fr"$\delta$ r " + str(E_kev)  + " keV")
 
         plt.figure(2)
         plt.subplot(221)
-        plt.plot(altitude_list1,  dt_median1, label=fr"$\delta$ t median " + str(E_kev) + " KeV")
+        plt.plot(altitude_list1,  dt_median1, label=fr"$\delta$ t median " + str(E_kev) + " keV")
         plt.subplot(222)
-        plt.plot(altitude_list2, dt_median2, label=fr"$\delta$ t median " + str(E_kev) + " KeV")
+        plt.plot(altitude_list2, dt_median2, label=fr"$\delta$ t median " + str(E_kev) + " keV")
         plt.subplot(223)
-        plt.plot(altitude_list1, dr_median1, label=fr"$\delta$ r median " + str(E_kev) + " KeV")
+        plt.plot(altitude_list1, dr_median1, label=fr"$\delta$ r median " + str(E_kev) + " keV")
         plt.subplot(224)
-        plt.plot(altitude_list2, dr_median2, label=fr"$\delta$ r median " + str(E_kev) + " KeV")
+        plt.plot(altitude_list2, dr_median2, label=fr"$\delta$ r median " + str(E_kev) + " keV")
     # after all KeV are plotted, add titles and such
     plt.figure(1)
     plt.subplot(221)
@@ -192,7 +192,7 @@ def write_data_band_test(min_alt, max_alt, alt_interval, how_many, E_kev_list):
         np.save(alt_path, altitude_list)
 
 
-plot_compare_planets_band_test("Earth", "Jupiter", 600, 10000, 200, 100, [3.3], write=True)  # stable
-# plot_compare_planets_band_test("Earth", "Jupiter", 600, 10000, 200, 100, [1.0, 1.5, 2, 3.3, 5, 8, 10], write=False)  # stable
+# plot_compare_planets_band_test("Earth", "Jupiter", 600, 10000, 200, 100, [3.3], write=True)  # stable
+plot_compare_planets_band_test("Earth", "Jupiter", 600, 10000, 200, 100, [1.0, 1.5, 2, 3.3, 5, 8, 10], write=False)  # stable
 # plot_compare_planets("Jupiter", "Earth", 600, 10000, 200, 300)  # TODO stabilize on Maria
 print(wd)
